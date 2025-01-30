@@ -114,58 +114,51 @@
     <h1>Modern Clicker Game</h1>
     <div class="stats">
       <p>Clicks: <span id="clicks">0</span></p>
+      <p>Click Rate: <span id="click-rate">0</span>/s</p>
     </div>
     <button class="click-button" id="click-button">Click Me!</button>
     <div class="store">
-      <div class="store-item disabled" id="upgrade-click">
+      <div class="store-item" id="upgrade-click">
         <span>+1 Click per Click (Cost: <span id="click-upgrade-cost">10</span>)</span>
       </div>
-      <div class="store-item disabled" id="auto-click">
+      <div class="store-item" id="auto-click">
         <span>Auto-Click (Cost: <span id="auto-click-cost">50</span>)</span>
       </div>
-      <div class="store-item disabled" id="mega-click">
+      <div class="store-item" id="mega-click">
         <span>+10 Clicks per Click (Cost: <span id="mega-click-cost">200</span>)</span>
       </div>
-      <div class="store-item disabled" id="super-auto-click">
+      <div class="store-item" id="super-auto-click">
         <span>Super Auto-Click (Cost: <span id="super-auto-click-cost">500</span>)</span>
       </div>
-      <div class="store-item disabled" id="ultra-auto-click">
+      <div class="store-item" id="ultra-auto-click">
         <span>Ultra Auto-Click (Cost: <span id="ultra-auto-click-cost">1000</span>)</span>
       </div>
     </div>
-    <div class="upgrades" id="upgrades"></div>
   </div>
 
   <script>
     let clicks = 0;
     let clicksPerClick = 1;
-    let autoClickCost = 50;
+    let autoClickRate = 0;
     let clickUpgradeCost = 10;
+    let autoClickCost = 50;
     let megaClickCost = 200;
     let superAutoClickCost = 500;
     let ultraAutoClickCost = 1000;
-    let autoClickerEnabled = false;
-    let superAutoClickerEnabled = false;
 
     const clickDisplay = document.getElementById('clicks');
+    const clickRateDisplay = document.getElementById('click-rate');
     const clickButton = document.getElementById('click-button');
     const autoClickElement = document.getElementById('auto-click');
     const clickUpgradeElement = document.getElementById('upgrade-click');
     const megaClickElement = document.getElementById('mega-click');
     const superAutoClickElement = document.getElementById('super-auto-click');
     const ultraAutoClickElement = document.getElementById('ultra-auto-click');
-    const autoClickCostDisplay = document.getElementById('auto-click-cost');
     const clickUpgradeCostDisplay = document.getElementById('click-upgrade-cost');
+    const autoClickCostDisplay = document.getElementById('auto-click-cost');
     const megaClickCostDisplay = document.getElementById('mega-click-cost');
     const superAutoClickCostDisplay = document.getElementById('super-auto-click-cost');
     const ultraAutoClickCostDisplay = document.getElementById('ultra-auto-click-cost');
-    const upgradesDisplay = document.getElementById('upgrades');
-
-    function addUpgrade(name, effect) {
-      const upgradeElement = document.createElement('p');
-      upgradeElement.textContent = `${name}: ${effect}`;
-      upgradesDisplay.appendChild(upgradeElement);
-    }
 
     function updateStore() {
       clickUpgradeElement.classList.toggle('disabled', clicks < clickUpgradeCost);
@@ -173,6 +166,10 @@
       megaClickElement.classList.toggle('disabled', clicks < megaClickCost);
       superAutoClickElement.classList.toggle('disabled', clicks < superAutoClickCost);
       ultraAutoClickElement.classList.toggle('disabled', clicks < ultraAutoClickCost);
+    }
+
+    function updateClickRate() {
+      clickRateDisplay.textContent = autoClickRate;
     }
 
     clickButton.addEventListener('click', () => {
@@ -189,78 +186,73 @@
         clickUpgradeCostDisplay.textContent = clickUpgradeCost;
         clickDisplay.textContent = clicks;
         updateStore();
-        addUpgrade('+1 Click/Click', `+1`);
-        clickUpgradeElement.remove();
       }
     });
 
     autoClickElement.addEventListener('click', () => {
-      if (clicks >= autoClickCost && !autoClickerEnabled) {
+      if (clicks >= autoClickCost) {
         clicks -= autoClickCost;
+        autoClickRate += clicksPerClick;
         autoClickCost = Math.ceil(autoClickCost * 2);
         autoClickCostDisplay.textContent = autoClickCost;
-        autoClickerEnabled = true;
+        clickDisplay.textContent = clicks;
+        updateStore();
+        updateClickRate();
         setInterval(() => {
           clicks += clicksPerClick;
           clickDisplay.textContent = clicks;
           updateStore();
         }, 1000);
-        clickDisplay.textContent = clicks;
-        updateStore();
-        addUpgrade('Auto-Click', `+${clicksPerClick}/s`);
-        autoClickElement.remove();
       }
     });
 
     megaClickElement.addEventListener('click', () => {
       if (clicks >= megaClickCost) {
         clicks -= megaClickCost;
-        megaClickCost = Math.ceil(megaClickCost * 2);
         clicksPerClick += 10;
+        megaClickCost = Math.ceil(megaClickCost * 2);
         megaClickCostDisplay.textContent = megaClickCost;
         clickDisplay.textContent = clicks;
         updateStore();
-        addUpgrade('+10 Clicks/Click', `+10`);
-        megaClickElement.remove();
       }
     });
 
     superAutoClickElement.addEventListener('click', () => {
-      if (clicks >= superAutoClickCost && !superAutoClickerEnabled) {
+      if (clicks >= superAutoClickCost) {
         clicks -= superAutoClickCost;
+        autoClickRate += clicksPerClick * 5;
         superAutoClickCost = Math.ceil(superAutoClickCost * 2);
         superAutoClickCostDisplay.textContent = superAutoClickCost;
-        superAutoClickerEnabled = true;
+        clickDisplay.textContent = clicks;
+        updateStore();
+        updateClickRate();
         setInterval(() => {
           clicks += clicksPerClick * 5;
           clickDisplay.textContent = clicks;
           updateStore();
         }, 500);
-        clickDisplay.textContent = clicks;
-        updateStore();
-        addUpgrade('Super Auto-Click', `+${clicksPerClick * 5}/s`);
-        superAutoClickElement.remove();
       }
     });
 
     ultraAutoClickElement.addEventListener('click', () => {
       if (clicks >= ultraAutoClickCost) {
         clicks -= ultraAutoClickCost;
+        autoClickRate += clicksPerClick * 10;
         ultraAutoClickCost = Math.ceil(ultraAutoClickCost * 2);
         ultraAutoClickCostDisplay.textContent = ultraAutoClickCost;
+        clickDisplay.textContent = clicks;
+        updateStore();
+        updateClickRate();
         setInterval(() => {
           clicks += clicksPerClick * 10;
           clickDisplay.textContent = clicks;
           updateStore();
         }, 200);
-        clickDisplay.textContent = clicks;
-        updateStore();
-        addUpgrade('Ultra Auto-Click', `+${clicksPerClick * 10}/s`);
-        ultraAutoClickElement.remove();
       }
     });
 
     updateStore();
+    updateClickRate();
   </script>
 </body>
 </html>
