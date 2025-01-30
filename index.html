@@ -48,6 +48,8 @@
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
       animation: pulse 1s infinite;
+      position: relative;
+      overflow: hidden;
     }
 
     .click-button:hover {
@@ -106,6 +108,22 @@
     .upgrades p {
       font-size: 1rem;
       margin: 5px 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff6f61;
+      animation: particle-move 0.5s ease-out forwards;
+    }
+
+    @keyframes particle-move {
+      to {
+        transform: translateY(-100px) scale(0);
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -172,10 +190,24 @@
       clickRateDisplay.textContent = autoClickRate;
     }
 
-    clickButton.addEventListener('click', () => {
+    function spawnParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 500);
+    }
+
+    clickButton.addEventListener('click', (e) => {
       clicks += clicksPerClick;
       clickDisplay.textContent = clicks;
       updateStore();
+
+      const rect = clickButton.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      spawnParticle(rect.left + x, rect.top + y);
     });
 
     clickUpgradeElement.addEventListener('click', () => {
