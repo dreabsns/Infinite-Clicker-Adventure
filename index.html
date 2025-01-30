@@ -47,11 +47,21 @@
       color: #fff;
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
+      animation: pulse 1s infinite;
     }
 
     .click-button:hover {
       background: #ff857a;
       transform: scale(1.1);
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
     }
 
     .stats {
@@ -88,6 +98,15 @@
       opacity: 0.5;
       pointer-events: none;
     }
+
+    .upgrades {
+      margin-top: 20px;
+    }
+
+    .upgrades p {
+      font-size: 1rem;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -110,7 +129,11 @@
       <div class="store-item disabled" id="super-auto-click">
         <span>Super Auto-Click (Cost: <span id="super-auto-click-cost">500</span>)</span>
       </div>
+      <div class="store-item disabled" id="ultra-auto-click">
+        <span>Ultra Auto-Click (Cost: <span id="ultra-auto-click-cost">1000</span>)</span>
+      </div>
     </div>
+    <div class="upgrades" id="upgrades"></div>
   </div>
 
   <script>
@@ -120,6 +143,7 @@
     let clickUpgradeCost = 10;
     let megaClickCost = 200;
     let superAutoClickCost = 500;
+    let ultraAutoClickCost = 1000;
     let autoClickerEnabled = false;
     let superAutoClickerEnabled = false;
 
@@ -129,20 +153,28 @@
     const clickUpgradeElement = document.getElementById('upgrade-click');
     const megaClickElement = document.getElementById('mega-click');
     const superAutoClickElement = document.getElementById('super-auto-click');
+    const ultraAutoClickElement = document.getElementById('ultra-auto-click');
     const autoClickCostDisplay = document.getElementById('auto-click-cost');
     const clickUpgradeCostDisplay = document.getElementById('click-upgrade-cost');
     const megaClickCostDisplay = document.getElementById('mega-click-cost');
     const superAutoClickCostDisplay = document.getElementById('super-auto-click-cost');
+    const ultraAutoClickCostDisplay = document.getElementById('ultra-auto-click-cost');
+    const upgradesDisplay = document.getElementById('upgrades');
 
-    // Update buttons' enabled/disabled state
+    function addUpgrade(name, effect) {
+      const upgradeElement = document.createElement('p');
+      upgradeElement.textContent = `${name}: ${effect}`;
+      upgradesDisplay.appendChild(upgradeElement);
+    }
+
     function updateStore() {
       clickUpgradeElement.classList.toggle('disabled', clicks < clickUpgradeCost);
       autoClickElement.classList.toggle('disabled', clicks < autoClickCost);
       megaClickElement.classList.toggle('disabled', clicks < megaClickCost);
       superAutoClickElement.classList.toggle('disabled', clicks < superAutoClickCost);
+      ultraAutoClickElement.classList.toggle('disabled', clicks < ultraAutoClickCost);
     }
 
-    // Handle button clicks
     clickButton.addEventListener('click', () => {
       clicks += clicksPerClick;
       clickDisplay.textContent = clicks;
@@ -157,6 +189,8 @@
         clickUpgradeCostDisplay.textContent = clickUpgradeCost;
         clickDisplay.textContent = clicks;
         updateStore();
+        addUpgrade('+1 Click/Click', `+1`);
+        clickUpgradeElement.remove();
       }
     });
 
@@ -173,6 +207,8 @@
         }, 1000);
         clickDisplay.textContent = clicks;
         updateStore();
+        addUpgrade('Auto-Click', `+${clicksPerClick}/s`);
+        autoClickElement.remove();
       }
     });
 
@@ -184,6 +220,8 @@
         megaClickCostDisplay.textContent = megaClickCost;
         clickDisplay.textContent = clicks;
         updateStore();
+        addUpgrade('+10 Clicks/Click', `+10`);
+        megaClickElement.remove();
       }
     });
 
@@ -200,6 +238,25 @@
         }, 500);
         clickDisplay.textContent = clicks;
         updateStore();
+        addUpgrade('Super Auto-Click', `+${clicksPerClick * 5}/s`);
+        superAutoClickElement.remove();
+      }
+    });
+
+    ultraAutoClickElement.addEventListener('click', () => {
+      if (clicks >= ultraAutoClickCost) {
+        clicks -= ultraAutoClickCost;
+        ultraAutoClickCost = Math.ceil(ultraAutoClickCost * 2);
+        ultraAutoClickCostDisplay.textContent = ultraAutoClickCost;
+        setInterval(() => {
+          clicks += clicksPerClick * 10;
+          clickDisplay.textContent = clicks;
+          updateStore();
+        }, 200);
+        clickDisplay.textContent = clicks;
+        updateStore();
+        addUpgrade('Ultra Auto-Click', `+${clicksPerClick * 10}/s`);
+        ultraAutoClickElement.remove();
       }
     });
 
