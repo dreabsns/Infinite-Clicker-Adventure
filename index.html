@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Clicker Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2b5876, #4e4376);
+      color: #fff;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .click-button {
+      font-size: 1.5rem;
+      padding: 15px 30px;
+      margin: 20px 0;
+      border: none;
+      border-radius: 10px;
+      background: #ff6f61;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .click-button:hover {
+      background: #ff857a;
+      transform: scale(1.1);
+    }
+
+    .stats {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .store {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .store-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-radius: 10px;
+      background: #333;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .store-item:hover {
+      background: #444;
+    }
+
+    .store-item span {
+      font-size: 1rem;
+    }
+
+    .disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Modern Clicker Game</h1>
+    <div class="stats">
+      <p>Clicks: <span id="clicks">0</span></p>
+    </div>
+    <button class="click-button" id="click-button">Click Me!</button>
+    <div class="store">
+      <div class="store-item disabled" id="upgrade-click">
+        <span>+1 Click per Click (Cost: <span id="click-upgrade-cost">10</span>)</span>
+      </div>
+      <div class="store-item disabled" id="auto-click">
+        <span>Auto-Click (Cost: <span id="auto-click-cost">50</span>)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let clicks = 0;
+    let clicksPerClick = 1;
+    let autoClickCost = 50;
+    let clickUpgradeCost = 10;
+    let autoClickerEnabled = false;
+
+    const clickDisplay = document.getElementById('clicks');
+    const clickButton = document.getElementById('click-button');
+    const autoClickElement = document.getElementById('auto-click');
+    const clickUpgradeElement = document.getElementById('upgrade-click');
+    const autoClickCostDisplay = document.getElementById('auto-click-cost');
+    const clickUpgradeCostDisplay = document.getElementById('click-upgrade-cost');
+
+    // Update buttons' enabled/disabled state
+    function updateStore() {
+      clickUpgradeElement.classList.toggle('disabled', clicks < clickUpgradeCost);
+      autoClickElement.classList.toggle('disabled', clicks < autoClickCost);
+    }
+
+    // Handle button clicks
+    clickButton.addEventListener('click', () => {
+      clicks += clicksPerClick;
+      clickDisplay.textContent = clicks;
+      updateStore();
+    });
+
+    clickUpgradeElement.addEventListener('click', () => {
+      if (clicks >= clickUpgradeCost) {
+        clicks -= clickUpgradeCost;
+        clickUpgradeCost = Math.ceil(clickUpgradeCost * 1.5);
+        clicksPerClick++;
+        clickUpgradeCostDisplay.textContent = clickUpgradeCost;
+        clickDisplay.textContent = clicks;
+        updateStore();
+      }
+    });
+
+    autoClickElement.addEventListener('click', () => {
+      if (clicks >= autoClickCost && !autoClickerEnabled) {
+        clicks -= autoClickCost;
+        autoClickCost = Math.ceil(autoClickCost * 2);
+        autoClickCostDisplay.textContent = autoClickCost;
+        autoClickerEnabled = true;
+        setInterval(() => {
+          clicks += clicksPerClick;
+          clickDisplay.textContent = clicks;
+          updateStore();
+        }, 1000);
+        clickDisplay.textContent = clicks;
+        updateStore();
+      }
+    });
+
+    updateStore();
+  </script>
+</body>
+</html>
