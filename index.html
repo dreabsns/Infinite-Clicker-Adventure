@@ -125,6 +125,33 @@
         opacity: 0;
       }
     }
+
+    .progress-bar {
+      width: 100%;
+      background: #444;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-bar-inner {
+      height: 10px;
+      width: 0;
+      background: #ff6f61;
+      transition: width 0.5s;
+    }
+
+    .achievement {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #fff;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .achievement p {
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -135,6 +162,9 @@
       <p>Click Rate: <span id="click-rate">0</span>/s</p>
     </div>
     <button class="click-button" id="click-button">Click Me!</button>
+    <div class="progress-bar">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
     <div class="store">
       <div class="store-item" id="upgrade-click">
         <span>+1 Click per Click (Cost: <span id="click-upgrade-cost">10</span>)</span>
@@ -152,6 +182,9 @@
         <span>Ultra Auto-Click (Cost: <span id="ultra-auto-click-cost">1000</span>)</span>
       </div>
     </div>
+    <div id="achievements" class="upgrades">
+      <h3>Achievements:</h3>
+    </div>
   </div>
 
   <script>
@@ -163,6 +196,7 @@
     let megaClickCost = 200;
     let superAutoClickCost = 500;
     let ultraAutoClickCost = 1000;
+    const progressTarget = 100;
 
     const clickDisplay = document.getElementById('clicks');
     const clickRateDisplay = document.getElementById('click-rate');
@@ -177,6 +211,8 @@
     const megaClickCostDisplay = document.getElementById('mega-click-cost');
     const superAutoClickCostDisplay = document.getElementById('super-auto-click-cost');
     const ultraAutoClickCostDisplay = document.getElementById('ultra-auto-click-cost');
+    const progressBar = document.getElementById('progress-bar');
+    const achievements = document.getElementById('achievements');
 
     function updateStore() {
       clickUpgradeElement.classList.toggle('disabled', clicks < clickUpgradeCost);
@@ -199,10 +235,27 @@
       setTimeout(() => particle.remove(), 500);
     }
 
+    function updateProgressBar() {
+      const progress = Math.min((clicks % progressTarget) / progressTarget * 100, 100);
+      progressBar.style.width = `${progress}%`;
+    }
+
+    function addAchievement(text) {
+      const achievement = document.createElement('div');
+      achievement.classList.add('achievement');
+      achievement.innerHTML = `<p>${text}</p>`;
+      achievements.appendChild(achievement);
+    }
+
     clickButton.addEventListener('click', (e) => {
       clicks += clicksPerClick;
       clickDisplay.textContent = clicks;
       updateStore();
+      updateProgressBar();
+
+      if (clicks === 100) {
+        addAchievement('First 100 Clicks!');
+      }
 
       const rect = clickButton.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -234,6 +287,7 @@
           clicks += clicksPerClick;
           clickDisplay.textContent = clicks;
           updateStore();
+          updateProgressBar();
         }, 1000);
       }
     });
@@ -262,6 +316,7 @@
           clicks += clicksPerClick * 5;
           clickDisplay.textContent = clicks;
           updateStore();
+          updateProgressBar();
         }, 500);
       }
     });
@@ -279,6 +334,7 @@
           clicks += clicksPerClick * 10;
           clickDisplay.textContent = clicks;
           updateStore();
+          updateProgressBar();
         }, 200);
       }
     });
