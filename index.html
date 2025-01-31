@@ -3,344 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern Clicker Game</title>
+  <title>Ultimate Clicker Game</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #2b5876, #4e4376);
-      color: #fff;
+      height: 100vh;
+      overflow: hidden;
     }
-
     .container {
       text-align: center;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-      width: 90%;
-      max-width: 500px;
+      max-width: 400px;
     }
-
-    h1 {
-      font-size: 2rem;
+    .title {
+      font-size: 2.5rem;
       margin-bottom: 20px;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
-
-    .click-button {
-      font-size: 1.5rem;
-      padding: 15px 30px;
-      margin: 20px 0;
+    .button {
+      background-color: #ff5722;
       border: none;
+      color: white;
+      font-size: 1.5rem;
+      padding: 20px 40px;
       border-radius: 10px;
-      background: #ff6f61;
-      color: #fff;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-      animation: pulse 1s infinite;
-      position: relative;
-      overflow: hidden;
+      transition: all 0.2s;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
     }
-
-    .click-button:hover {
-      background: #ff857a;
+    .button:hover {
       transform: scale(1.1);
+      box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.5);
     }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
+    .score {
+      font-size: 2rem;
+      margin: 20px 0;
     }
-
-    .stats {
-      margin-bottom: 20px;
-      font-size: 1.2rem;
+    .shop {
+      margin-top: 30px;
     }
-
-    .store {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .store-item {
+    .shop-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: #333;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .store-item:hover {
-      background: #444;
-    }
-
-    .store-item span {
-      font-size: 1rem;
-    }
-
-    .disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .upgrades {
-      margin-top: 20px;
-    }
-
-    .upgrades p {
-      font-size: 1rem;
-      margin: 5px 0;
-    }
-
-    .particle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #ff6f61;
-      animation: particle-move 0.5s ease-out forwards;
-    }
-
-    @keyframes particle-move {
-      to {
-        transform: translateY(-100px) scale(0);
-        opacity: 0;
-      }
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: #444;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-
-    .progress-bar-inner {
-      height: 10px;
-      width: 0;
-      background: #ff6f61;
-      transition: width 0.5s;
-    }
-
-    .achievement {
       background: rgba(255, 255, 255, 0.1);
-      border: 1px solid #fff;
       padding: 10px;
       border-radius: 10px;
-      margin-top: 10px;
+      margin-bottom: 10px;
     }
-
-    .achievement p {
-      font-size: 0.9rem;
+    .shop-item button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .shop-item button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Modern Clicker Game</h1>
-    <div class="stats">
-      <p>Clicks: <span id="clicks">0</span></p>
-      <p>Click Rate: <span id="click-rate">0</span>/s</p>
-    </div>
-    <button class="click-button" id="click-button">Click Me!</button>
-    <div class="progress-bar">
-      <div class="progress-bar-inner" id="progress-bar"></div>
-    </div>
-    <div class="store">
-      <div class="store-item" id="upgrade-click">
-        <span>+1 Click per Click (Cost: <span id="click-upgrade-cost">10</span>)</span>
+    <div class="title">Ultimate Clicker Game</div>
+    <button class="button" id="clickButton">Click Me!</button>
+    <div class="score" id="score">Score: 0</div>
+
+    <div class="shop">
+      <div class="shop-item">
+        <span>Auto Clicker (+1/s) - 50 Points</span>
+        <button id="buyAutoClicker">Buy</button>
       </div>
-      <div class="store-item" id="auto-click">
-        <span>Auto-Click (Cost: <span id="auto-click-cost">50</span>)</span>
+      <div class="shop-item">
+        <span>Double Click Power - 100 Points</span>
+        <button id="buyDoubleClick">Buy</button>
       </div>
-      <div class="store-item" id="mega-click">
-        <span>+10 Clicks per Click (Cost: <span id="mega-click-cost">200</span>)</span>
-      </div>
-      <div class="store-item" id="super-auto-click">
-        <span>Super Auto-Click (Cost: <span id="super-auto-click-cost">500</span>)</span>
-      </div>
-      <div class="store-item" id="ultra-auto-click">
-        <span>Ultra Auto-Click (Cost: <span id="ultra-auto-click-cost">1000</span>)</span>
-      </div>
-    </div>
-    <div id="achievements" class="upgrades">
-      <h3>Achievements:</h3>
     </div>
   </div>
 
   <script>
-    let clicks = 0;
-    let clicksPerClick = 1;
-    let autoClickRate = 0;
-    let clickUpgradeCost = 10;
-    let autoClickCost = 50;
-    let megaClickCost = 200;
-    let superAutoClickCost = 500;
-    let ultraAutoClickCost = 1000;
-    const progressTarget = 100;
+    let score = 0;
+    let clickPower = 1;
+    let autoClickerCount = 0;
 
-    const clickDisplay = document.getElementById('clicks');
-    const clickRateDisplay = document.getElementById('click-rate');
-    const clickButton = document.getElementById('click-button');
-    const autoClickElement = document.getElementById('auto-click');
-    const clickUpgradeElement = document.getElementById('upgrade-click');
-    const megaClickElement = document.getElementById('mega-click');
-    const superAutoClickElement = document.getElementById('super-auto-click');
-    const ultraAutoClickElement = document.getElementById('ultra-auto-click');
-    const clickUpgradeCostDisplay = document.getElementById('click-upgrade-cost');
-    const autoClickCostDisplay = document.getElementById('auto-click-cost');
-    const megaClickCostDisplay = document.getElementById('mega-click-cost');
-    const superAutoClickCostDisplay = document.getElementById('super-auto-click-cost');
-    const ultraAutoClickCostDisplay = document.getElementById('ultra-auto-click-cost');
-    const progressBar = document.getElementById('progress-bar');
-    const achievements = document.getElementById('achievements');
+    const clickButton = document.getElementById('clickButton');
+    const scoreDisplay = document.getElementById('score');
+    const buyAutoClicker = document.getElementById('buyAutoClicker');
+    const buyDoubleClick = document.getElementById('buyDoubleClick');
 
-    function updateStore() {
-      clickUpgradeElement.classList.toggle('disabled', clicks < clickUpgradeCost);
-      autoClickElement.classList.toggle('disabled', clicks < autoClickCost);
-      megaClickElement.classList.toggle('disabled', clicks < megaClickCost);
-      superAutoClickElement.classList.toggle('disabled', clicks < superAutoClickCost);
-      ultraAutoClickElement.classList.toggle('disabled', clicks < ultraAutoClickCost);
+    clickButton.addEventListener('click', () => {
+      score += clickPower;
+      updateScore();
+    });
+
+    buyAutoClicker.addEventListener('click', () => {
+      if (score >= 50) {
+        score -= 50;
+        autoClickerCount++;
+        updateScore();
+      }
+    });
+
+    buyDoubleClick.addEventListener('click', () => {
+      if (score >= 100) {
+        score -= 100;
+        clickPower *= 2;
+        buyDoubleClick.disabled = true;
+        updateScore();
+      }
+    });
+
+    function updateScore() {
+      scoreDisplay.textContent = `Score: ${score}`;
+      buyAutoClicker.disabled = score < 50;
+      buyDoubleClick.disabled = score < 100 || clickPower > 1;
     }
 
-    function updateClickRate() {
-      clickRateDisplay.textContent = autoClickRate;
-    }
-
-    function spawnParticle(x, y) {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      particle.style.left = `${x}px`;
-      particle.style.top = `${y}px`;
-      document.body.appendChild(particle);
-      setTimeout(() => particle.remove(), 500);
-    }
-
-    function updateProgressBar() {
-      const progress = Math.min((clicks % progressTarget) / progressTarget * 100, 100);
-      progressBar.style.width = `${progress}%`;
-    }
-
-    function addAchievement(text) {
-      const achievement = document.createElement('div');
-      achievement.classList.add('achievement');
-      achievement.innerHTML = `<p>${text}</p>`;
-      achievements.appendChild(achievement);
-    }
-
-    clickButton.addEventListener('click', (e) => {
-      clicks += clicksPerClick;
-      clickDisplay.textContent = clicks;
-      updateStore();
-      updateProgressBar();
-
-      if (clicks === 100) {
-        addAchievement('First 100 Clicks!');
+    setInterval(() => {
+      if (autoClickerCount > 0) {
+        score += autoClickerCount;
+        updateScore();
       }
-
-      const rect = clickButton.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      spawnParticle(rect.left + x, rect.top + y);
-    });
-
-    clickUpgradeElement.addEventListener('click', () => {
-      if (clicks >= clickUpgradeCost) {
-        clicks -= clickUpgradeCost;
-        clickUpgradeCost = Math.ceil(clickUpgradeCost * 1.5);
-        clicksPerClick++;
-        clickUpgradeCostDisplay.textContent = clickUpgradeCost;
-        clickDisplay.textContent = clicks;
-        updateStore();
-      }
-    });
-
-    autoClickElement.addEventListener('click', () => {
-      if (clicks >= autoClickCost) {
-        clicks -= autoClickCost;
-        autoClickRate += clicksPerClick;
-        autoClickCost = Math.ceil(autoClickCost * 2);
-        autoClickCostDisplay.textContent = autoClickCost;
-        clickDisplay.textContent = clicks;
-        updateStore();
-        updateClickRate();
-        setInterval(() => {
-          clicks += clicksPerClick;
-          clickDisplay.textContent = clicks;
-          updateStore();
-          updateProgressBar();
-        }, 1000);
-      }
-    });
-
-    megaClickElement.addEventListener('click', () => {
-      if (clicks >= megaClickCost) {
-        clicks -= megaClickCost;
-        clicksPerClick += 10;
-        megaClickCost = Math.ceil(megaClickCost * 2);
-        megaClickCostDisplay.textContent = megaClickCost;
-        clickDisplay.textContent = clicks;
-        updateStore();
-      }
-    });
-
-    superAutoClickElement.addEventListener('click', () => {
-      if (clicks >= superAutoClickCost) {
-        clicks -= superAutoClickCost;
-        autoClickRate += clicksPerClick * 5;
-        superAutoClickCost = Math.ceil(superAutoClickCost * 2);
-        superAutoClickCostDisplay.textContent = superAutoClickCost;
-        clickDisplay.textContent = clicks;
-        updateStore();
-        updateClickRate();
-        setInterval(() => {
-          clicks += clicksPerClick * 5;
-          clickDisplay.textContent = clicks;
-          updateStore();
-          updateProgressBar();
-        }, 500);
-      }
-    });
-
-    ultraAutoClickElement.addEventListener('click', () => {
-      if (clicks >= ultraAutoClickCost) {
-        clicks -= ultraAutoClickCost;
-        autoClickRate += clicksPerClick * 10;
-        ultraAutoClickCost = Math.ceil(ultraAutoClickCost * 2);
-        ultraAutoClickCostDisplay.textContent = ultraAutoClickCost;
-        clickDisplay.textContent = clicks;
-        updateStore();
-        updateClickRate();
-        setInterval(() => {
-          clicks += clicksPerClick * 10;
-          clickDisplay.textContent = clicks;
-          updateStore();
-          updateProgressBar();
-        }, 200);
-      }
-    });
-
-    updateStore();
-    updateClickRate();
+    }, 1000);
   </script>
 </body>
 </html>
