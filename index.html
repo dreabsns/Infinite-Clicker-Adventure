@@ -6,7 +6,7 @@
   <title>Ultimate Clicker Game</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       background: linear-gradient(135deg, #1e3c72, #2a5298);
       color: white;
       margin: 0;
@@ -19,11 +19,24 @@
     .container {
       text-align: center;
       max-width: 400px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
     }
     .title {
-      font-size: 2.5rem;
+      font-size: 3rem;
       margin-bottom: 20px;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
     }
     .button {
       background-color: #ff5722;
@@ -43,6 +56,8 @@
     .score {
       font-size: 2rem;
       margin: 20px 0;
+      font-weight: bold;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
     .shop {
       margin-top: 30px;
@@ -50,22 +65,46 @@
     .shop-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
+      padding: 15px;
       border-radius: 10px;
       margin-bottom: 10px;
+      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.3);
+    }
+    .shop-item span {
+      font-size: 1.2rem;
     }
     .shop-item button {
       background-color: #4caf50;
       color: white;
       border: none;
       border-radius: 5px;
-      padding: 5px 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .shop-item button:hover {
+      background-color: #45a049;
     }
     .shop-item button:disabled {
       background-color: #ccc;
       cursor: not-allowed;
+    }
+    .progress {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: #4caf50;
+      transition: width 0.3s;
     }
   </style>
 </head>
@@ -74,6 +113,9 @@
     <div class="title">Ultimate Clicker Game</div>
     <button class="button" id="clickButton">Click Me!</button>
     <div class="score" id="score">Score: 0</div>
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
 
     <div class="shop">
       <div class="shop-item">
@@ -84,6 +126,10 @@
         <span>Double Click Power - 100 Points</span>
         <button id="buyDoubleClick">Buy</button>
       </div>
+      <div class="shop-item">
+        <span>Super Click Boost (+10/click) - 500 Points</span>
+        <button id="buySuperBoost">Buy</button>
+      </div>
     </div>
   </div>
 
@@ -91,14 +137,19 @@
     let score = 0;
     let clickPower = 1;
     let autoClickerCount = 0;
+    let progress = 0;
 
     const clickButton = document.getElementById('clickButton');
     const scoreDisplay = document.getElementById('score');
     const buyAutoClicker = document.getElementById('buyAutoClicker');
     const buyDoubleClick = document.getElementById('buyDoubleClick');
+    const buySuperBoost = document.getElementById('buySuperBoost');
+    const progressBar = document.getElementById('progressBar');
 
     clickButton.addEventListener('click', () => {
       score += clickPower;
+      progress = (score % 100) / 100 * 100;
+      updateProgress();
       updateScore();
     });
 
@@ -119,15 +170,31 @@
       }
     });
 
+    buySuperBoost.addEventListener('click', () => {
+      if (score >= 500) {
+        score -= 500;
+        clickPower += 10;
+        buySuperBoost.disabled = true;
+        updateScore();
+      }
+    });
+
     function updateScore() {
       scoreDisplay.textContent = `Score: ${score}`;
       buyAutoClicker.disabled = score < 50;
       buyDoubleClick.disabled = score < 100 || clickPower > 1;
+      buySuperBoost.disabled = score < 500 || clickPower > 10;
+    }
+
+    function updateProgress() {
+      progressBar.style.width = `${progress}%`;
     }
 
     setInterval(() => {
       if (autoClickerCount > 0) {
         score += autoClickerCount;
+        progress = (score % 100) / 100 * 100;
+        updateProgress();
         updateScore();
       }
     }, 1000);
