@@ -48,6 +48,7 @@
       cursor: pointer;
       transition: all 0.2s;
       box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
     }
     .button:hover {
       transform: scale(1.1);
@@ -106,6 +107,23 @@
       background: #4caf50;
       transition: width 0.3s;
     }
+    .floating-reward {
+      position: absolute;
+      font-size: 1.5rem;
+      color: gold;
+      animation: floatUp 1s ease-out;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -146,11 +164,12 @@
     const buySuperBoost = document.getElementById('buySuperBoost');
     const progressBar = document.getElementById('progressBar');
 
-    clickButton.addEventListener('click', () => {
+    clickButton.addEventListener('click', (e) => {
       score += clickPower;
       progress = (score % 100) / 100 * 100;
       updateProgress();
       updateScore();
+      spawnReward(e.clientX, e.clientY, `+${clickPower}`);
     });
 
     buyAutoClicker.addEventListener('click', () => {
@@ -188,6 +207,17 @@
 
     function updateProgress() {
       progressBar.style.width = `${progress}%`;
+    }
+
+    function spawnReward(x, y, text) {
+      const reward = document.createElement('div');
+      reward.classList.add('floating-reward');
+      reward.style.left = `${x}px`;
+      reward.style.top = `${y}px`;
+      reward.textContent = text;
+      document.body.appendChild(reward);
+
+      setTimeout(() => reward.remove(), 1000);
     }
 
     setInterval(() => {
