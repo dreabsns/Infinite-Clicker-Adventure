@@ -119,7 +119,7 @@
       0% { transform: scale(0); opacity: 0.9; }
       100% { transform: scale(5); opacity: 0; }
     }
-    /* Stats Panel (non-interfering) */
+    /* Stats Panel with pointer-events disabled */
     .stats {
       display: flex;
       justify-content: space-around;
@@ -133,6 +133,15 @@
     #clickButton {
       margin: 20px auto;
       display: block;
+    }
+    /* Upgrades Screen: Added points display */
+    #upgradesScreen h2 {
+      margin-bottom: 10px;
+    }
+    #upgradesScreen .points-display {
+      font-size: 1em;
+      margin-bottom: 15px;
+      opacity: 0.9;
     }
     /* Upgrades Styling */
     .upgrades { margin-top: 30px; }
@@ -284,6 +293,8 @@
     <!-- Upgrades Screen -->
     <div id="upgradesScreen" class="screen">
       <h2>Upgrades</h2>
+      <!-- Display current points for convenience -->
+      <div class="points-display">Your Points: <span id="points-upgrade">0</span></div>
       <div id="upgradesContainer"></div>
     </div>
     
@@ -345,6 +356,7 @@
       const prestigeMultiplierEl = document.getElementById('prestigeMultiplier');
       const prestigePointsEl = document.getElementById('prestigePoints');
       const prestigeBonusEl = document.getElementById('prestigeBonus');
+      const pointsUpgradeEl = document.getElementById('points-upgrade');
       const clickButton = document.getElementById('clickButton');
       const upgradesContainer = document.getElementById('upgradesContainer');
       const achievementsContainer = document.getElementById('achievementsContainer');
@@ -397,15 +409,18 @@
         prestigeMultiplierEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
         prestigePointsEl.textContent = prestigePoints;
         prestigeBonusEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
+        // Also update the points display in the upgrade section:
+        pointsUpgradeEl.textContent = Math.floor(points);
         updateUpgradesUI();
         updateAchievementsUI();
       }
       
       function showReward(x, y, text) {
+        // Offset the reward 40px upward to avoid interfering with clicks.
         const reward = document.createElement('div');
         reward.style.position = 'absolute';
         reward.style.left = x + 'px';
-        reward.style.top = y + 'px';
+        reward.style.top = (y - 40) + 'px';
         reward.style.fontSize = '1.3em';
         reward.style.color = '#f1c40f';
         reward.style.opacity = 1;
