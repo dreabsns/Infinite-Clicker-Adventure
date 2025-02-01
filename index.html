@@ -8,7 +8,7 @@
   <!-- Google Fonts for modern typography -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Global Reset, Non-Selectable Text, and Animated Background */
+    /* Global Reset und Nicht-Auswählbarer Text */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -26,9 +26,8 @@
       color: #f8f9fa;
       overflow-x: hidden;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      position: relative;
       padding: 20px;
     }
     @keyframes gradientBG {
@@ -36,18 +35,25 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Header: fixiert auf größeren Bildschirmen, relativ auf mobilen Geräten */
-    header {
+    /* Container: Alles in der Mitte – Header, Navigation und Inhalt */
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
       width: 100%;
       max-width: 900px;
+    }
+    /* Header: Innerhalb des Containers */
+    header {
+      width: 100%;
       text-align: center;
-      padding: 10px 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1100;
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      margin-bottom: 10px;
     }
     header h1 {
       font-size: 2.5em;
@@ -58,7 +64,7 @@
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 0;
+      margin-bottom: 20px;
     }
     nav button {
       margin: 5px;
@@ -68,21 +74,6 @@
     nav button.active,
     nav button:hover {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
-    }
-    /* Container: Auf größeren Bildschirmen wird ein oberer Abstand eingeplant, damit der fixierte Header nicht verdeckt */
-    .container {
-      max-width: 900px;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      margin-top: 120px; /* Header-Höhe berücksichtigen */
     }
     /* Decorative Tagline */
     .tagline {
@@ -100,7 +91,7 @@
       border-radius: 50px;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       position: relative;
       overflow: hidden;
       text-align: center;
@@ -108,9 +99,9 @@
     button:focus { outline: none; }
     button:hover {
       transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
     }
-    /* Pulse Animation for Extra Click Feedback */
+    /* Pulse Animation */
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.1); }
@@ -119,7 +110,7 @@
     .pulse {
       animation: pulse 0.3s ease;
     }
-    /* Enhanced Double Ripple Effect */
+    /* Ripple Effekt */
     .ripple {
       position: absolute;
       border-radius: 50%;
@@ -151,7 +142,7 @@
       50% { transform: scale(1.8) rotate(10deg); opacity: 1; text-shadow: 0 0 10px #fffd82; }
       100% { transform: scale(2.5) rotate(20deg); opacity: 0; }
     }
-    /* Stats Panel with pointer-events disabled */
+    /* Stats Panel – nicht klickbar */
     .stats {
       display: flex;
       justify-content: space-around;
@@ -165,7 +156,7 @@
     #gameScreen {
       margin-top: 0;
     }
-    /* Upgrades Screen: Punkteanzeige hinzugefügt */
+    /* Upgrades Screen: Punkteanzeige */
     #upgradesScreen h2 {
       margin-bottom: 10px;
     }
@@ -289,7 +280,6 @@
     }
     /* Responsive Optimierung */
     @media (max-width: 600px) {
-      /* Auf mobilen Geräten: Header nicht fixiert */
       header {
         position: relative;
         transform: none;
@@ -322,13 +312,8 @@
     /* Für größere Bildschirme (z. B. Laptops) */
     @media (min-width: 601px) {
       header {
-        position: fixed;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      .container {
-        margin-top: 120px;
+        position: relative;
+        transform: none;
       }
     }
   </style>
