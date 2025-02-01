@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Infinite Clicker Extreme: Ultimate Edition</title>
+  <!-- Prevent Zooming on Mobile Devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <!-- Google Fonts for modern typography -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -24,8 +26,10 @@
       color: #f8f9fa;
       overflow-x: hidden;
       display: flex;
-      align-items: center;  /* vertikale Zentrierung */
-      justify-content: center;  /* horizontale Zentrierung */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
       padding: 20px;
     }
     @keyframes gradientBG {
@@ -33,7 +37,7 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Hauptcontainer – stets zentriert */
+    /* Hauptcontainer – zentriert (auf Laptops in der Mitte) */
     .container {
       background: rgba(0, 0, 0, 0.6);
       border-radius: 12px;
@@ -47,7 +51,7 @@
       width: 100%;
       max-width: 900px;
     }
-    /* Header & Navigation bleiben im Container, nicht oben am Bildschirm */
+    /* Header & Navigation – innerhalb des Containers, nicht am Bildschirmrand */
     header {
       width: 100%;
       text-align: center;
@@ -140,7 +144,7 @@
       50% { transform: scale(1.8) rotate(10deg); opacity: 1; text-shadow: 0 0 10px #fffd82; }
       100% { transform: scale(2.5) rotate(20deg); opacity: 0; }
     }
-    /* Stats Panel mit pointer-events deaktiviert */
+    /* Stats Panel with pointer-events disabled */
     .stats {
       display: flex;
       justify-content: space-around;
@@ -150,7 +154,7 @@
       pointer-events: none;
     }
     .stats div { margin: 10px; }
-    /* Game Screen: Klickbereich direkt unter der Navigation */
+    /* Spielbereich: Klickbereich direkt unter der Navigation */
     #gameScreen {
       margin-top: 0;
     }
@@ -212,7 +216,7 @@
     }
     .achievement.locked { opacity: 0.5; }
     .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
-    /* Fixed Buttons für Daily Bonus und Reset */
+    /* Fixed Buttons for Daily Bonus and Reset */
     #resetButton, #dailyBonusButton {
       position: fixed;
       bottom: 20px;
@@ -276,7 +280,7 @@
     #modal button {
       margin: 0 10px;
     }
-    /* Responsive Optimierung: unterschiedliche Strukturen und Größen je nach Bildschirmgröße */
+    /* Responsive Optimierung für verschiedene Geräte */
     @media (max-width: 600px) {
       .container {
         margin: 10px auto;
@@ -304,7 +308,12 @@
         font-size: 0.9em;
       }
     }
-    /* Weitere Media Queries können hinzugefügt werden, um das Layout noch feiner anzupassen */
+    /* Für größere Bildschirme (z. B. Laptops) zentrieren wir den Container */
+    @media (min-width: 901px) {
+      body {
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -457,7 +466,7 @@
         prestigeMultiplierEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
         prestigePointsEl.textContent = prestigePoints;
         prestigeBonusEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
-        // Update points display in the Upgrade-Sektion
+        // Update points display in Upgrade-Bereich:
         pointsUpgradeEl.textContent = Math.floor(points);
         updateUpgradesUI();
         updateAchievementsUI();
