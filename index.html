@@ -35,21 +35,20 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Container: Alles in der Mitte – Header, Navigation und Inhalt */
+    /* Container: Zentral ausgerichtet */
     .container {
       background: rgba(0, 0, 0, 0.6);
       border-radius: 12px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.5);
       text-align: center;
-      position: relative;
+      width: 100%;
+      max-width: 900px;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
-      width: 100%;
-      max-width: 900px;
     }
-    /* Header: Innerhalb des Containers */
+    /* Header – Bestandteil des Containers */
     header {
       width: 100%;
       text-align: center;
@@ -214,7 +213,7 @@
     }
     .achievement.locked { opacity: 0.5; }
     .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
-    /* Fixed Buttons for Daily Bonus and Reset */
+    /* Fixed Buttons für Daily Bonus und Reset */
     #resetButton, #dailyBonusButton {
       position: fixed;
       bottom: 20px;
@@ -309,17 +308,16 @@
         font-size: 0.9em;
       }
     }
-    /* Für größere Bildschirme (z. B. Laptops) */
     @media (min-width: 601px) {
-      header {
-        position: relative;
-        transform: none;
+      /* Auf Laptops: Container zentriert, Header im Container */
+      body {
+        justify-content: center;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Popup and Modal Containers -->
+  <!-- Popup und Modal Container -->
   <div id="popup-container"></div>
   <div id="modal-container">
     <div id="modal">
