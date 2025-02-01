@@ -13,6 +13,9 @@
       padding: 0;
       user-select: none;
     }
+    html, body {
+      height: 100%;
+    }
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(-45deg, #1e3c72, #2a5298, #1e3c72, #2a5298);
@@ -20,23 +23,35 @@
       animation: gradientBG 15s ease infinite;
       color: #f8f9fa;
       overflow-x: hidden;
-      min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
+      align-items: center;  /* vertikale Zentrierung */
+      justify-content: center;  /* horizontale Zentrierung */
+      padding: 20px;
     }
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Header & Navigation – fixiert am oberen Rand */
-    header {
+    /* Hauptcontainer – stets zentriert */
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
       width: 100%;
       max-width: 900px;
+    }
+    /* Header & Navigation bleiben im Container, nicht oben am Bildschirm */
+    header {
+      width: 100%;
       text-align: center;
-      margin-bottom: 0;
+      margin-bottom: 10px;
     }
     header h1 {
       font-size: 2.5em;
@@ -51,22 +66,12 @@
     }
     nav button {
       margin: 5px;
+      padding: 10px 20px;
+      font-size: 1em;
     }
     nav button.active,
     nav button:hover {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
-    }
-    /* Container: Jetzt direkt unter dem Header – kein extra Abstand oben */
-    .container {
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto; /* kein zusätzlicher Abstand oben */
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      position: relative;
     }
     /* Decorative Tagline */
     .tagline {
@@ -124,18 +129,18 @@
       0% { transform: scale(0); opacity: 0.9; }
       100% { transform: scale(5); opacity: 0; }
     }
-    /* New Reward Burst Animation */
+    /* Reward Burst Animation */
     @keyframes rewardBurst {
       0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
       100% { transform: translateY(-60px) scale(1.5) rotate(360deg); opacity: 0; }
     }
-    /* New Bonus Burst Animation */
+    /* Bonus Burst Animation */
     @keyframes bonusBurst {
       0% { transform: scale(0); opacity: 0; }
       50% { transform: scale(1.8) rotate(10deg); opacity: 1; text-shadow: 0 0 10px #fffd82; }
       100% { transform: scale(2.5) rotate(20deg); opacity: 0; }
     }
-    /* Stats Panel with pointer-events disabled */
+    /* Stats Panel mit pointer-events deaktiviert */
     .stats {
       display: flex;
       justify-content: space-around;
@@ -145,11 +150,11 @@
       pointer-events: none;
     }
     .stats div { margin: 10px; }
-    /* Game Screen: Klickbereich direkt unter dem Menü */
+    /* Game Screen: Klickbereich direkt unter der Navigation */
     #gameScreen {
       margin-top: 0;
     }
-    /* Upgrades Screen: Points Display Added */
+    /* Upgrades Screen: Punkteanzeige hinzugefügt */
     #upgradesScreen h2 {
       margin-bottom: 10px;
     }
@@ -207,7 +212,7 @@
     }
     .achievement.locked { opacity: 0.5; }
     .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
-    /* Fixed Buttons for Daily Bonus and Reset */
+    /* Fixed Buttons für Daily Bonus und Reset */
     #resetButton, #dailyBonusButton {
       position: fixed;
       bottom: 20px;
@@ -271,7 +276,7 @@
     #modal button {
       margin: 0 10px;
     }
-    /* Responsive Optimierung für alle Geräte */
+    /* Responsive Optimierung: unterschiedliche Strukturen und Größen je nach Bildschirmgröße */
     @media (max-width: 600px) {
       .container {
         margin: 10px auto;
@@ -281,7 +286,7 @@
         font-size: 2em;
       }
       nav button {
-        padding: 10px 20px;
+        padding: 8px 16px;
         font-size: 0.9em;
       }
       button {
@@ -290,6 +295,7 @@
       }
       .upgrade-item {
         width: 90%;
+        margin: 10px auto;
       }
       .stats {
         font-size: 1em;
@@ -298,6 +304,7 @@
         font-size: 0.9em;
       }
     }
+    /* Weitere Media Queries können hinzugefügt werden, um das Layout noch feiner anzupassen */
   </style>
 </head>
 <body>
@@ -450,7 +457,7 @@
         prestigeMultiplierEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
         prestigePointsEl.textContent = prestigePoints;
         prestigeBonusEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
-        // Update the points display in the upgrade section:
+        // Update points display in the Upgrade-Sektion
         pointsUpgradeEl.textContent = Math.floor(points);
         updateUpgradesUI();
         updateAchievementsUI();
