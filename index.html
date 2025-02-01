@@ -89,7 +89,7 @@
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
-    /* Pulse animation for extra click feedback */
+    /* Pulse Animation for Extra Click Feedback */
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.1); }
@@ -119,6 +119,17 @@
       0% { transform: scale(0); opacity: 0.9; }
       100% { transform: scale(5); opacity: 0; }
     }
+    /* New Reward Burst Animation */
+    @keyframes rewardBurst {
+      0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-60px) scale(1.5) rotate(360deg); opacity: 0; }
+    }
+    /* New Bonus Burst Animation */
+    @keyframes bonusBurst {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.8) rotate(10deg); opacity: 1; text-shadow: 0 0 10px #fffd82; }
+      100% { transform: scale(2.5) rotate(20deg); opacity: 0; }
+    }
     /* Stats Panel with pointer-events disabled */
     .stats {
       display: flex;
@@ -134,7 +145,7 @@
       margin: 20px auto;
       display: block;
     }
-    /* Upgrades Screen: Added points display */
+    /* Upgrades Screen: Points Display Added */
     #upgradesScreen h2 {
       margin-bottom: 10px;
     }
@@ -293,7 +304,6 @@
     <!-- Upgrades Screen -->
     <div id="upgradesScreen" class="screen">
       <h2>Upgrades</h2>
-      <!-- Display current points for convenience -->
       <div class="points-display">Your Points: <span id="points-upgrade">0</span></div>
       <div id="upgradesContainer"></div>
     </div>
@@ -415,19 +425,37 @@
         updateAchievementsUI();
       }
       
+      // New reward animation function using rewardBurst keyframes.
       function showReward(x, y, text) {
-        // Offset the reward 40px upward to avoid interfering with clicks.
         const reward = document.createElement('div');
         reward.style.position = 'absolute';
+        // Offset further upward to avoid click interference.
         reward.style.left = x + 'px';
-        reward.style.top = (y - 40) + 'px';
-        reward.style.fontSize = '1.3em';
-        reward.style.color = '#f1c40f';
+        reward.style.top = (y - 60) + 'px';
+        reward.style.fontSize = '1.5em';
+        reward.style.color = '#fffd82';
         reward.style.opacity = 1;
-        reward.style.animation = 'float 1s ease-out forwards';
+        reward.style.animation = 'rewardBurst 1s ease-out forwards';
         reward.textContent = text;
         document.body.appendChild(reward);
         setTimeout(() => reward.remove(), 1000);
+      }
+      
+      // New bonus event animation function using bonusBurst keyframes.
+      function showBonusEvent(bonus) {
+        const bonusElem = document.createElement('div');
+        bonusElem.style.position = 'fixed';
+        bonusElem.style.left = '50%';
+        bonusElem.style.top = '50%';
+        bonusElem.style.transform = 'translate(-50%, -50%)';
+        bonusElem.style.fontSize = '3em';
+        bonusElem.style.color = '#fffd82';
+        bonusElem.style.textShadow = '0 0 10px #fffd82';
+        bonusElem.style.opacity = 0;
+        bonusElem.style.animation = 'bonusBurst 1.2s ease-out forwards';
+        bonusElem.textContent = 'BONUS! +' + bonus;
+        document.body.appendChild(bonusElem);
+        setTimeout(() => bonusElem.remove(), 1200);
       }
       
       /*** Navigation Tabs ***/
@@ -443,7 +471,6 @@
       /*** Game Click Handler with Enhanced Animation ***/
       clickButton.addEventListener('click', function(e){
         totalClicks++;
-        // Pulse effect on button
         clickButton.classList.add('pulse');
         setTimeout(() => clickButton.classList.remove('pulse'), 300);
         
@@ -454,7 +481,7 @@
         updateUI();
         showReward(e.clientX, e.clientY, '+' + added.toFixed(0));
         
-        // Create double ripple effect
+        // Create double ripple effect.
         const rect = clickButton.getBoundingClientRect();
         for (let i = 0; i < 2; i++) {
           const ripple = document.createElement('span');
@@ -484,7 +511,8 @@
           let bonus = Math.floor(Math.random()*50) + 20;
           points += bonus;
           updateUI();
-          showReward(window.innerWidth/2, window.innerHeight/2, 'Bonus +' + bonus);
+          // Use the new bonus animation (center screen).
+          showBonusEvent(bonus);
         }
       }
       setInterval(bonusEvent, 7000);
@@ -501,7 +529,7 @@
         points += bonus;
         updateUI();
         localStorage.setItem('dailyBonusTime', now);
-        showReward(window.innerWidth/2, window.innerHeight/2, 'Daily Bonus +' + bonus);
+        showBonusEvent(bonus);
       });
       
       /*** Upgrades ***/
