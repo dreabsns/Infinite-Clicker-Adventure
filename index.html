@@ -49,7 +49,7 @@
       letter-spacing: 1px;
       margin-bottom: 10px;
     }
-    /* Tagline to fill space */
+    /* Decorative Tagline */
     .tagline {
       font-size: 1.1em;
       margin-top: 20px;
@@ -64,7 +64,6 @@
     }
     nav button {
       margin: 5px;
-      /* Inherits global button style */
     }
     nav button.active,
     nav button:hover {
@@ -90,24 +89,44 @@
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
-    /* Ripple Effect */
+    /* Pulse animation for extra click feedback */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .pulse {
+      animation: pulse 0.3s ease;
+    }
+    /* Enhanced Double Ripple Effect */
     .ripple {
       position: absolute;
       border-radius: 50%;
       transform: scale(0);
-      animation: ripple 0.6s linear;
-      background-color: rgba(255, 255, 255, 0.7);
+      pointer-events: none;
+      background-color: rgba(255,255,255,0.7);
     }
-    @keyframes ripple {
+    .ripple.primary {
+      animation: ripplePrimary 0.6s linear;
+    }
+    .ripple.secondary {
+      animation: rippleSecondary 0.8s linear;
+    }
+    @keyframes ripplePrimary {
       to { transform: scale(4); opacity: 0; }
     }
-    /* Stats Panel */
+    @keyframes rippleSecondary {
+      0% { transform: scale(0); opacity: 0.9; }
+      100% { transform: scale(5); opacity: 0; }
+    }
+    /* Stats Panel (non-interfering) */
     .stats {
       display: flex;
       justify-content: space-around;
       margin: 20px 0;
       font-size: 1.2em;
       flex-wrap: wrap;
+      pointer-events: none;
     }
     .stats div { margin: 10px; }
     /* Specific Button Adjustments */
@@ -118,7 +137,7 @@
     /* Upgrades Styling */
     .upgrades { margin-top: 30px; }
     .upgrade-item {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
       padding: 15px;
       margin: 10px;
       border-radius: 8px;
@@ -126,7 +145,7 @@
       width: 260px;
       vertical-align: top;
       transition: transform 0.3s;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
       text-align: left;
     }
     .upgrade-item:hover { transform: translateY(-5px); }
@@ -153,7 +172,7 @@
     }
     /* Achievements Styling */
     .achievement {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       padding: 10px;
       margin: 10px;
       border-radius: 5px;
@@ -187,7 +206,7 @@
       z-index: 2000;
     }
     .popup {
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0,0,0,0.8);
       padding: 15px 20px;
       margin-bottom: 10px;
       border-radius: 8px;
@@ -286,7 +305,7 @@
       <button id="prestigeButton">Prestige (Reset for bonus)</button>
       <p style="margin-top:15px; font-size:0.9em;">(You need at least 1000 points to prestige)</p>
     </div>
-    <!-- Tagline -->
+    <!-- Decorative Tagline -->
     <div class="tagline">Keep clicking for endless fun!</div>
   </div>
   
@@ -406,9 +425,13 @@
         });
       });
       
-      /*** Game Click Handler ***/
+      /*** Game Click Handler with Enhanced Animation ***/
       clickButton.addEventListener('click', function(e){
         totalClicks++;
+        // Pulse effect on button
+        clickButton.classList.add('pulse');
+        setTimeout(() => clickButton.classList.remove('pulse'), 300);
+        
         let upgradeMultiplier = 1 + upgrades.filter(u => u.type === 'multi').reduce((acc, u) => acc + u.count * u.effect, 0);
         let currentMultiplier = (1 + prestigePoints * 0.1) * upgradeMultiplier;
         let added = pointsPerClick * currentMultiplier;
@@ -416,14 +439,16 @@
         updateUI();
         showReward(e.clientX, e.clientY, '+' + added.toFixed(0));
         
-        // Ripple effect
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        let rect = clickButton.getBoundingClientRect();
-        ripple.style.left = (e.clientX - rect.left) + 'px';
-        ripple.style.top = (e.clientY - rect.top) + 'px';
-        clickButton.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
+        // Create double ripple effect
+        const rect = clickButton.getBoundingClientRect();
+        for (let i = 0; i < 2; i++) {
+          const ripple = document.createElement('span');
+          ripple.className = 'ripple ' + (i === 0 ? 'primary' : 'secondary');
+          ripple.style.left = (e.clientX - rect.left) + 'px';
+          ripple.style.top = (e.clientY - rect.top) + 'px';
+          clickButton.appendChild(ripple);
+          setTimeout(() => ripple.remove(), i === 0 ? 600 : 800);
+        }
       });
       
       /*** Auto Clickers ***/
