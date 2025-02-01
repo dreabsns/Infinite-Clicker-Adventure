@@ -2,101 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Infinite Clicker Extreme</title>
+  <title>Infinite Clicker Extreme: Ultimate Edition</title>
+  <!-- Using Google Fonts for modern typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Reset & Basic Styling */
+    /* Global Reset and Animated Background */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1c1c1c, #434343);
-      color: #f0f0f0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #1e3c72, #2a5298, #1e3c72, #2a5298);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f8f9fa;
       overflow-x: hidden;
       min-height: 100vh;
     }
-    header {
-      background: #222;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-    header h1 { font-size: 2em; }
-    nav {
-      display: flex;
-      justify-content: center;
-      margin-top: 10px;
-    }
-    nav button {
-      background: #444;
-      border: none;
-      padding: 10px 20px;
-      margin: 0 5px;
-      border-radius: 5px;
-      color: #f0f0f0;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    nav button.active, nav button:hover {
-      background: #e67e22;
-    }
+    /* Container Styling */
     .container {
-      max-width: 1000px;
-      margin: 20px auto;
+      max-width: 900px;
+      margin: 40px auto;
       padding: 20px;
       background: rgba(0,0,0,0.6);
-      border-radius: 8px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
     }
-    .hidden { display: none; }
-    
-    /* Game Screen */
-    #gameScreen {
+    header {
       text-align: center;
+      margin-bottom: 20px;
     }
+    header h1 {
+      font-size: 2.5em;
+      letter-spacing: 1px;
+    }
+    /* Stats Panel */
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      font-size: 1.2em;
+    }
+    .stats div { margin: 0 10px; }
+    /* Click Button with Ripple Effect */
     #clickButton {
-      background: #e67e22;
+      position: relative;
+      background: #ff6f61;
       border: none;
       color: #fff;
       padding: 20px 40px;
       font-size: 1.5em;
       border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.1s, background 0.3s;
-      margin: 20px;
+      transition: transform 0.1s ease;
+      overflow: hidden;
     }
-    #clickButton:hover { background: #d35400; }
+    #clickButton:hover { background: #ff4c3b; }
     #clickButton:active { transform: scale(0.98); }
-    .stats {
-      font-size: 1.2em;
-      margin: 10px 0;
-    }
-    /* Floating reward animation */
-    @keyframes float {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-60px); opacity: 0; }
-    }
-    .reward {
+    /* Ripple Effect for Clicks */
+    .ripple {
       position: absolute;
-      font-size: 1.3em;
-      pointer-events: none;
-      animation: float 1s ease-out forwards;
-      color: #f1c40f;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      background-color: rgba(255,255,255,0.7);
     }
-    
-    /* Upgrades Screen */
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+    /* Upgrades Styling */
+    .upgrades { margin-top: 30px; text-align: center; }
     .upgrade-item {
-      background: rgba(0,0,0,0.4);
+      background: rgba(255,255,255,0.1);
       padding: 15px;
       margin: 10px;
       border-radius: 8px;
       display: inline-block;
-      width: 280px;
+      width: 260px;
       vertical-align: top;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transition: transform 0.3s;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
     }
-    .upgrade-item h3 { margin-bottom: 5px; }
+    .upgrade-item:hover { transform: translateY(-5px); }
+    .upgrade-item h3 { margin-bottom: 5px; font-size: 1.3em; }
     .upgrade-item p { margin-bottom: 5px; font-size: 0.95em; }
     .upgrade-item button {
-      background: #3498db;
+      background: #4ecca3;
       border: none;
       padding: 10px;
       border-radius: 5px;
@@ -104,14 +100,14 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .upgrade-item button:hover { background: #2980b9; }
+    .upgrade-item button:hover { background: #3da58a; }
     .progress {
       width: 100%;
       background: #34495e;
       border-radius: 5px;
       overflow: hidden;
       margin-top: 10px;
-      height: 18px;
+      height: 20px;
     }
     .progress-inner {
       height: 100%;
@@ -119,7 +115,6 @@
       background: #27ae60;
       transition: width 0.5s;
     }
-    
     /* Achievements Screen */
     .achievement {
       background: rgba(0,0,0,0.5);
@@ -129,24 +124,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: opacity 0.3s;
     }
     .achievement.locked { opacity: 0.5; }
-    .achievement.unlocked { border: 2px solid #f1c40f; }
-    
-    /* Prestige Screen */
-    .prestige-info { font-size: 1.2em; margin: 10px 0; }
-    .prestige-btn {
-      background: #9b59b6;
+    .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
+    /* Navigation Tabs */
+    nav {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    nav button {
+      background: #555;
       border: none;
       padding: 10px 20px;
+      margin: 0 5px;
       border-radius: 5px;
       color: #fff;
       cursor: pointer;
       transition: background 0.3s;
     }
-    .prestige-btn:hover { background: #8e44ad; }
-    
-    /* Reset and Daily Bonus */
+    nav button.active, nav button:hover { background: #e67e22; }
+    /* Fixed Buttons */
     #resetButton, #dailyBonusButton {
       position: fixed;
       bottom: 20px;
@@ -156,19 +155,24 @@
       color: #fff;
       cursor: pointer;
       transition: background 0.3s;
+      z-index: 1000;
     }
     #resetButton { right: 20px; background: #c0392b; }
     #resetButton:hover { background: #e74c3c; }
-    #dailyBonusButton {
-      left: 20px;
-      background: #27ae60;
-    }
+    #dailyBonusButton { left: 20px; background: #27ae60; }
     #dailyBonusButton:hover { background: #2ecc71; }
+    /* Screen Transitions */
+    .screen { display: none; animation: fadeIn 0.5s ease forwards; }
+    .screen.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Infinite Clicker Extreme</h1>
+    <h1>Infinite Clicker Extreme: Ultimate Edition</h1>
     <nav>
       <button data-screen="gameScreen" class="active">Game</button>
       <button data-screen="upgradesScreen">Upgrades</button>
@@ -178,7 +182,7 @@
   </header>
   <div class="container">
     <!-- Game Screen -->
-    <div id="gameScreen">
+    <div id="gameScreen" class="screen active">
       <div class="stats">
         <div>Points: <span id="points">0</span></div>
         <div>Points per Click: <span id="ppc">1</span></div>
@@ -189,32 +193,28 @@
     </div>
     
     <!-- Upgrades Screen -->
-    <div id="upgradesScreen" class="hidden">
+    <div id="upgradesScreen" class="screen">
       <h2>Upgrades</h2>
-      <div id="upgradesContainer">
-        <!-- Upgrade items will be dynamically inserted -->
-      </div>
+      <div id="upgradesContainer"></div>
     </div>
     
     <!-- Achievements Screen -->
-    <div id="achievementsScreen" class="hidden">
+    <div id="achievementsScreen" class="screen">
       <h2>Achievements</h2>
-      <div id="achievementsContainer">
-        <!-- Achievements will be listed here -->
-      </div>
+      <div id="achievementsContainer"></div>
     </div>
     
     <!-- Prestige Screen -->
-    <div id="prestigeScreen" class="hidden">
+    <div id="prestigeScreen" class="screen">
       <h2>Prestige</h2>
       <div class="prestige-info">
         Current Prestige Points: <span id="prestigePoints">0</span>
       </div>
       <div class="prestige-info">
-        Prestige Bonus (added to clicks & auto): x<span id="prestigeBonus">1</span>
+        Prestige Bonus: x<span id="prestigeBonus">1</span>
       </div>
       <button id="prestigeButton" class="prestige-btn">Prestige (Reset for bonus)</button>
-      <p style="margin-top:15px; font-size:0.9em;">Note: You must have at least 1000 points to prestige.</p>
+      <p style="margin-top:15px; font-size:0.9em;">(You need at least 1000 points to prestige)</p>
     </div>
   </div>
   
@@ -229,51 +229,13 @@
       let pointsPerClick = 1;
       let autoClickers = 0;
       let prestigePoints = 0;
-      let prestigeBonus = 1; // Each prestige point adds 0.1 bonus (for example)
-      let bonusChance = 0.1; // base 10% bonus chance
-      
-      // Upgrade data: each upgrade has id, name, description, cost, effect value, purchased count, and a type.
-      // Types: "click" (increases click power), "auto" (adds auto clickers), "multiplier" (multiplies gains), "lucky" (increases bonus chance)
+      let bonusChance = 0.1;
       const upgrades = [
-        {
-          id: 'clickUpgrade',
-          name: 'Better Clicks',
-          description: 'Increase points per click by +1.',
-          cost: 10,
-          effect: 1,
-          count: 0,
-          type: 'click'
-        },
-        {
-          id: 'autoUpgrade',
-          name: 'Auto Clicker',
-          description: 'Adds 1 auto clicker (points every second).',
-          cost: 50,
-          effect: 1,
-          count: 0,
-          type: 'auto'
-        },
-        {
-          id: 'multiUpgrade',
-          name: 'Multiplier Boost',
-          description: 'Increase overall point multiplier by 5%.',
-          cost: 100,
-          effect: 0.05,
-          count: 0,
-          type: 'multiplier'
-        },
-        {
-          id: 'luckyUpgrade',
-          name: 'Lucky Charm',
-          description: 'Increase bonus event chance by 2%.',
-          cost: 200,
-          effect: 0.02,
-          count: 0,
-          type: 'lucky'
-        }
+        { id: 'clickUpgrade', name: 'Better Clicks', description: 'Increase points per click by +1.', cost: 10, effect: 1, count: 0, type: 'click' },
+        { id: 'autoUpgrade', name: 'Auto Clicker', description: 'Adds 1 auto clicker (points every second).', cost: 50, effect: 1, count: 0, type: 'auto' },
+        { id: 'multiUpgrade', name: 'Multiplier Boost', description: 'Increase overall point multiplier by 5%.', cost: 100, effect: 0.05, count: 0, type: 'multiplier' },
+        { id: 'luckyUpgrade', name: 'Lucky Charm', description: 'Increase bonus event chance by 2%.', cost: 200, effect: 0.02, count: 0, type: 'lucky' }
       ];
-      
-      // Achievements data
       const achievements = [
         { id: 'achv1', name: 'Getting Started', description: 'Earn 100 points.', achieved: false, condition: () => points >= 100 },
         { id: 'achv2', name: 'Click Master', description: 'Perform 100 clicks.', achieved: false, condition: () => totalClicks >= 100 },
@@ -299,6 +261,7 @@
       const resetButton = document.getElementById('resetButton');
       const dailyBonusButton = document.getElementById('dailyBonusButton');
       const navButtons = document.querySelectorAll('nav button');
+      const screens = document.querySelectorAll('.screen');
       
       /*** UTILITY FUNCTIONS ***/
       function updateUI() {
@@ -314,45 +277,51 @@
       
       function showReward(x, y, text) {
         const reward = document.createElement('div');
-        reward.className = 'reward';
+        reward.style.position = 'absolute';
         reward.style.left = x + 'px';
         reward.style.top = y + 'px';
+        reward.style.fontSize = '1.3em';
+        reward.style.color = '#f1c40f';
+        reward.style.opacity = 1;
+        reward.style.animation = 'float 1s ease-out forwards';
         reward.textContent = text;
         document.body.appendChild(reward);
-        setTimeout(() => {
-          reward.remove();
-        }, 1000);
+        setTimeout(() => reward.remove(), 1000);
       }
       
-      /*** TABS NAVIGATION ***/
+      /*** Navigation Tabs ***/
       navButtons.forEach(btn => {
         btn.addEventListener('click', function(){
-          document.querySelectorAll('.container > div').forEach(screen => {
-            screen.classList.add('hidden');
-          });
-          const target = document.getElementById(this.getAttribute('data-screen'));
-          if(target) target.classList.remove('hidden');
           navButtons.forEach(b => b.classList.remove('active'));
           this.classList.add('active');
+          screens.forEach(screen => screen.classList.remove('active'));
+          document.getElementById(this.getAttribute('data-screen')).classList.add('active');
         });
       });
       
-      /*** GAME CLICK HANDLER ***/
+      /*** Game Click Handler ***/
       clickButton.addEventListener('click', function(e){
         totalClicks++;
-        // Calculate bonus multiplier from prestige and upgrades (multiplier upgrades)
         let upgradeMultiplier = 1 + upgrades.filter(u => u.type === 'multi').reduce((acc, u) => acc + u.count * u.effect, 0);
         let currentMultiplier = (1 + prestigePoints * 0.1) * upgradeMultiplier;
         let added = pointsPerClick * currentMultiplier;
         points += added;
         updateUI();
         showReward(e.clientX, e.clientY, '+' + added.toFixed(0));
+        
+        // Create ripple effect
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        let rect = clickButton.getBoundingClientRect();
+        ripple.style.left = (e.clientX - rect.left) + 'px';
+        ripple.style.top = (e.clientY - rect.top) + 'px';
+        clickButton.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
       });
       
-      /*** AUTO CLICKERS ***/
+      /*** Auto Clickers ***/
       setInterval(() => {
         if(autoClickers > 0) {
-          // Each auto clicker also benefits from multipliers
           let upgradeMultiplier = 1 + upgrades.filter(u => u.type === 'multi').reduce((acc, u) => acc + u.count * u.effect, 0);
           let currentMultiplier = (1 + prestigePoints * 0.1) * upgradeMultiplier;
           let autoPoints = autoClickers * currentMultiplier;
@@ -361,12 +330,11 @@
         }
       }, 1000);
       
-      /*** BONUS EVENTS ***/
+      /*** Bonus Events ***/
       function bonusEvent() {
-        // Base chance plus extra from lucky upgrades
         let extraChance = upgrades.filter(u => u.type === 'lucky').reduce((acc, u) => acc + u.count * u.effect, 0);
         if(Math.random() < bonusChance + extraChance) {
-          let bonus = Math.floor(Math.random() * 50) + 20;
+          let bonus = Math.floor(Math.random()*50) + 20;
           points += bonus;
           updateUI();
           showReward(window.innerWidth/2, window.innerHeight/2, 'Bonus +' + bonus);
@@ -374,7 +342,7 @@
       }
       setInterval(bonusEvent, 7000);
       
-      /*** DAILY BONUS ***/
+      /*** Daily Bonus ***/
       dailyBonusButton.addEventListener('click', function(){
         const lastClaim = localStorage.getItem('dailyBonusTime');
         const now = Date.now();
@@ -382,16 +350,15 @@
           alert("Daily bonus already claimed. Come back later!");
           return;
         }
-        const bonus = Math.floor(Math.random() * 200) + 100;
+        const bonus = Math.floor(Math.random()*200) + 100;
         points += bonus;
         updateUI();
         localStorage.setItem('dailyBonusTime', now);
-        showReward(window.innerWidth/2, window.innerHeight/2, 'Daily +' + bonus);
+        showReward(window.innerWidth/2, window.innerHeight/2, 'Daily Bonus +' + bonus);
       });
       
-      /*** UPGRADES ***/
+      /*** Upgrades ***/
       function updateUpgradesUI() {
-        // Clear container
         upgradesContainer.innerHTML = '';
         upgrades.forEach(upg => {
           const div = document.createElement('div');
@@ -407,7 +374,6 @@
           `;
           upgradesContainer.appendChild(div);
         });
-        // Add event listeners for each upgrade button
         document.querySelectorAll('[data-upgrade]').forEach(btn => {
           btn.addEventListener('click', function(){
             const upgId = this.getAttribute('data-upgrade');
@@ -422,9 +388,7 @@
           points -= upg.cost;
           upg.count++;
           totalUpgradesPurchased++;
-          // Increase cost exponentially
           upg.cost = Math.floor(upg.cost * 1.5);
-          // Apply upgrade effects immediately
           if(upg.type === 'click') {
             pointsPerClick += upg.effect;
           } else if(upg.type === 'auto') {
@@ -443,14 +407,12 @@
         setTimeout(() => { progress.style.width = '0'; }, 500);
       }
       
-      /*** ACHIEVEMENTS ***/
+      /*** Achievements ***/
       function updateAchievementsUI() {
         achievementsContainer.innerHTML = '';
         achievements.forEach(achv => {
-          // Check if achievement condition is met
           if(!achv.achieved && achv.condition()) {
             achv.achieved = true;
-            // Award prestige point bonus if desired (here we simply notify the player)
             alert("Achievement Unlocked: " + achv.name);
           }
           const div = document.createElement('div');
@@ -460,23 +422,20 @@
         });
       }
       
-      /*** PRESTIGE SYSTEM ***/
+      /*** Prestige System ***/
       prestigeButton.addEventListener('click', function(){
         if(points < 1000) {
           alert("You need at least 1000 points to prestige!");
           return;
         }
         if(confirm("Prestiging will reset your game but grant you a bonus multiplier. Continue?")) {
-          // Calculate prestige points gained (e.g., 1 per 1000 points over threshold)
           const gained = Math.floor(points / 1000);
           prestigePoints += gained;
-          // Reset most game variables
           points = 0;
           pointsPerClick = 1;
           autoClickers = 0;
           upgrades.forEach(upg => {
             upg.count = 0;
-            // Reset costs to initial values:
             if(upg.id === 'clickUpgrade') upg.cost = 10;
             if(upg.id === 'autoUpgrade') upg.cost = 50;
             if(upg.id === 'multiUpgrade') upg.cost = 100;
@@ -489,7 +448,7 @@
         }
       });
       
-      /*** RESET GAME ***/
+      /*** Reset Game ***/
       resetButton.addEventListener('click', function(){
         if(confirm("Are you sure you want to reset your game? This cannot be undone.")) {
           points = 0;
@@ -505,24 +464,23 @@
           });
           totalClicks = 0;
           totalUpgradesPurchased = 0;
-          localStorage.removeItem('infiniteClickerExtreme');
+          localStorage.removeItem('infiniteClickerUltimate');
           updateUI();
         }
       });
       
-      /*** SAVE & LOAD GAME STATE ***/
+      /*** Save & Load Game ***/
       function saveGame() {
         const state = {
           points, pointsPerClick, autoClickers, prestigePoints,
           upgrades: upgrades.map(u => ({ id: u.id, cost: u.cost, count: u.count })),
-          totalClicks,
-          totalUpgradesPurchased
+          totalClicks, totalUpgradesPurchased
         };
-        localStorage.setItem('infiniteClickerExtreme', JSON.stringify(state));
+        localStorage.setItem('infiniteClickerUltimate', JSON.stringify(state));
       }
       
       function loadGame() {
-        const saved = localStorage.getItem('infiniteClickerExtreme');
+        const saved = localStorage.getItem('infiniteClickerUltimate');
         if(saved) {
           const state = JSON.parse(saved);
           points = state.points;
@@ -531,7 +489,6 @@
           prestigePoints = state.prestigePoints;
           totalClicks = state.totalClicks;
           totalUpgradesPurchased = state.totalUpgradesPurchased;
-          // Restore upgrades data by matching ids
           state.upgrades.forEach(savedUpg => {
             const upg = upgrades.find(u => u.id === savedUpg.id);
             if(upg) {
@@ -544,8 +501,6 @@
       }
       
       setInterval(saveGame, 5000);
-      
-      /*** INITIALIZE ***/
       loadGame();
       updateUI();
     })();
