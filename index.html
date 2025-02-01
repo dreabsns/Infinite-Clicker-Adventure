@@ -36,16 +36,18 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Fixierter Header, damit das Menü immer sichtbar bleibt */
+    /* Header: fixiert auf größeren Bildschirmen, relativ auf mobilen Geräten */
     header {
-      position: fixed;
-      top: 0;
       width: 100%;
       max-width: 900px;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1100;
       text-align: center;
       padding: 10px 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1100;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
     }
     header h1 {
       font-size: 2.5em;
@@ -67,9 +69,8 @@
     nav button:hover {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
     }
-    /* Container: Muss einen oberen Abstand haben, damit der fixierte Header nicht verdeckt */
+    /* Container: Auf größeren Bildschirmen wird ein oberer Abstand eingeplant, damit der fixierte Header nicht verdeckt */
     .container {
-      margin-top: 120px; /* Abstand, damit der Header immer sichtbar bleibt */
       max-width: 900px;
       width: 100%;
       background: rgba(0, 0, 0, 0.6);
@@ -81,6 +82,7 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      margin-top: 120px; /* Header-Höhe berücksichtigen */
     }
     /* Decorative Tagline */
     .tagline {
@@ -285,12 +287,15 @@
     #modal button {
       margin: 0 10px;
     }
-    /* Responsive Optimierung für verschiedene Geräte */
+    /* Responsive Optimierung */
     @media (max-width: 600px) {
+      /* Auf mobilen Geräten: Header nicht fixiert */
+      header {
+        position: relative;
+        transform: none;
+      }
       .container {
-        margin-top: 100px; /* Erhöhter Abstand, da Header fixiert */
-        margin-bottom: 20px;
-        padding: 15px;
+        margin-top: 20px;
       }
       header h1 {
         font-size: 2em;
@@ -315,9 +320,12 @@
       }
     }
     /* Für größere Bildschirme (z. B. Laptops) */
-    @media (min-width: 901px) {
-      body {
-        justify-content: center;
+    @media (min-width: 601px) {
+      header {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
       }
       .container {
         margin-top: 120px;
