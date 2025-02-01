@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <title>Infinite Clicker Extreme: Ultimate Edition</title>
@@ -31,11 +31,11 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Centered Container with Extra Content */
+    /* Centered Container with Reduced Top Margin */
     .container {
       max-width: 900px;
       width: 100%;
-      margin: 40px auto;
+      margin: 20px auto; /* reduziert von 40px */
       padding: 20px;
       background: rgba(0, 0, 0, 0.6);
       border-radius: 12px;
@@ -43,7 +43,7 @@
       text-align: center;
       position: relative;
     }
-    header { margin-bottom: 20px; }
+    header { margin-bottom: 10px; }
     header h1 {
       font-size: 2.5em;
       letter-spacing: 1px;
@@ -59,7 +59,7 @@
     nav {
       display: flex;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       flex-wrap: wrap;
     }
     nav button {
@@ -140,10 +140,9 @@
       pointer-events: none;
     }
     .stats div { margin: 10px; }
-    /* Specific Button Adjustments */
-    #clickButton {
-      margin: 20px auto;
-      display: block;
+    /* Specific adjustments for Game Screen: minimize top margin */
+    #gameScreen {
+      margin-top: 0;
     }
     /* Upgrades Screen: Points Display Added */
     #upgradesScreen h2 {
@@ -266,6 +265,23 @@
     }
     #modal button {
       margin: 0 10px;
+    }
+    /* Responsive Optimierung */
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px auto;
+        padding: 15px;
+      }
+      header h1 {
+        font-size: 2em;
+      }
+      button {
+        padding: 12px 24px;
+        font-size: 1em;
+      }
+      .upgrade-item {
+        width: 90%;
+      }
     }
   </style>
 </head>
@@ -425,11 +441,11 @@
         updateAchievementsUI();
       }
       
-      // New reward animation function using rewardBurst keyframes.
+      // New reward animation using rewardBurst keyframes.
       function showReward(x, y, text) {
         const reward = document.createElement('div');
         reward.style.position = 'absolute';
-        // Offset further upward to avoid click interference.
+        // Offset reward further upward to avoid click interference.
         reward.style.left = x + 'px';
         reward.style.top = (y - 60) + 'px';
         reward.style.fontSize = '1.5em';
@@ -441,7 +457,7 @@
         setTimeout(() => reward.remove(), 1000);
       }
       
-      // New bonus event animation function using bonusBurst keyframes.
+      // Bonus event animation using bonusBurst keyframes.
       function showBonusEvent(bonus) {
         const bonusElem = document.createElement('div');
         bonusElem.style.position = 'fixed';
@@ -511,7 +527,6 @@
           let bonus = Math.floor(Math.random()*50) + 20;
           points += bonus;
           updateUI();
-          // Use the new bonus animation (center screen).
           showBonusEvent(bonus);
         }
       }
