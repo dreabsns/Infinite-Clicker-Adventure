@@ -2,232 +2,300 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ultimate Clicker Game</title>
+  <title>Infinite Clicker Adventure</title>
   <style>
+    /* Basic reset and styling */
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #2c3e50, #bdc3c7);
+      color: #ecf0f1;
+      overflow-x: hidden;
     }
     .container {
+      max-width: 800px;
+      margin: 40px auto;
       text-align: center;
-      max-width: 400px;
-      background: rgba(0, 0, 0, 0.6);
       padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .title {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.1);
-      }
-    }
-    .button {
-      background-color: #ff5722;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      padding: 20px 40px;
+      background: rgba(0, 0, 0, 0.5);
       border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-      position: relative;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     }
-    .button:hover {
-      transform: scale(1.1);
-      box-shadow: 0px 7px 20px rgba(0, 0, 0, 0.5);
+    h1 {
+      margin-bottom: 10px;
     }
-    .score {
-      font-size: 2rem;
+    .stats {
       margin: 20px 0;
-      font-weight: bold;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      font-size: 1.2em;
     }
-    .shop {
+    button {
+      background: #e67e22;
+      border: none;
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
+      margin: 10px;
+    }
+    button:hover {
+      background: #d35400;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    /* Upgrades styling */
+    .upgrades {
       margin-top: 30px;
     }
-    .shop-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.1);
+    .upgrade-item {
+      background: rgba(0, 0, 0, 0.4);
       padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin: 10px;
+      display: inline-block;
+      width: 240px;
+      vertical-align: top;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    .shop-item span {
-      font-size: 1.2rem;
+    .upgrade-item h3 {
+      margin: 0;
     }
-    .shop-item button {
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .shop-item button:hover {
-      background-color: #45a049;
-    }
-    .shop-item button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+    .upgrade-item p {
+      margin: 5px 0;
+      font-size: 0.95em;
     }
     .progress {
       width: 100%;
-      background: rgba(255, 255, 255, 0.2);
-      height: 10px;
+      background: #34495e;
       border-radius: 5px;
       overflow: hidden;
-      margin-top: 20px;
+      margin-top: 10px;
+      height: 20px;
     }
-    .progress-bar {
+    .progress-inner {
       height: 100%;
       width: 0;
-      background: #4caf50;
-      transition: width 0.3s;
+      background: #27ae60;
+      transition: width 0.5s;
     }
-    .floating-reward {
+    /* Reward float animation */
+    @keyframes float {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-50px); opacity: 0; }
+    }
+    .reward {
       position: absolute;
-      font-size: 1.5rem;
-      color: gold;
-      animation: floatUp 1s ease-out;
+      font-size: 1.5em;
       pointer-events: none;
+      animation: float 1s ease-out forwards;
+      color: #f1c40f;
     }
-    @keyframes floatUp {
-      from {
-        transform: translateY(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
+    /* Reset button fixed in bottom-right */
+    #resetButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #c0392b;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #resetButton:hover {
+      background: #e74c3c;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title">Ultimate Clicker Game</div>
-    <button class="button" id="clickButton">Click Me!</button>
-    <div class="score" id="score">Score: 0</div>
-    <div class="progress">
-      <div class="progress-bar" id="progressBar"></div>
+    <h1>Infinite Clicker Adventure</h1>
+    <div class="stats">
+      <div>Points: <span id="points">0</span></div>
+      <div>Points per Click: <span id="ppc">1</span></div>
+      <div>Auto-Clickers: <span id="auto">0</span></div>
     </div>
+    <button id="clickButton">Click Me!</button>
 
-    <div class="shop">
-      <div class="shop-item">
-        <span>Auto Clicker (+1/s) - 50 Points</span>
-        <button id="buyAutoClicker">Buy</button>
+    <div class="upgrades">
+      <h2>Upgrades</h2>
+      <div class="upgrade-item">
+        <h3>Better Clicks</h3>
+        <p>Increase points per click.</p>
+        <p>Cost: <span id="cost-click">10</span></p>
+        <button class="upgrade" data-upgrade="click">Buy Upgrade</button>
+        <div class="progress" id="progress-click">
+          <div class="progress-inner"></div>
+        </div>
       </div>
-      <div class="shop-item">
-        <span>Double Click Power - 100 Points</span>
-        <button id="buyDoubleClick">Buy</button>
-      </div>
-      <div class="shop-item">
-        <span>Super Click Boost (+10/click) - 500 Points</span>
-        <button id="buySuperBoost">Buy</button>
+      <div class="upgrade-item">
+        <h3>Auto Clicker</h3>
+        <p>Clicks automatically every second.</p>
+        <p>Cost: <span id="cost-auto">50</span></p>
+        <button class="upgrade" data-upgrade="auto">Buy Auto</button>
+        <div class="progress" id="progress-auto">
+          <div class="progress-inner"></div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Reset button -->
+  <button id="resetButton">Reset Game</button>
+
   <script>
-    let score = 0;
-    let clickPower = 1;
-    let autoClickerCount = 0;
-    let progress = 0;
+    (function(){
+      // Game variables
+      let points = 0;
+      let pointsPerClick = 1;
+      let autoClickers = 0;
+      let costClick = 10;
+      let costAuto = 50;
+      
+      // DOM elements
+      const pointsEl = document.getElementById('points');
+      const ppcEl = document.getElementById('ppc');
+      const autoEl = document.getElementById('auto');
+      const costClickEl = document.getElementById('cost-click');
+      const costAutoEl = document.getElementById('cost-auto');
+      const clickButton = document.getElementById('clickButton');
+      const upgradeButtons = document.querySelectorAll('.upgrade');
+      const resetButton = document.getElementById('resetButton');
 
-    const clickButton = document.getElementById('clickButton');
-    const scoreDisplay = document.getElementById('score');
-    const buyAutoClicker = document.getElementById('buyAutoClicker');
-    const buyDoubleClick = document.getElementById('buyDoubleClick');
-    const buySuperBoost = document.getElementById('buySuperBoost');
-    const progressBar = document.getElementById('progressBar');
-
-    clickButton.addEventListener('click', (e) => {
-      score += clickPower;
-      progress = (score % 100) / 100 * 100;
-      updateProgress();
-      updateScore();
-      spawnReward(e.clientX, e.clientY, `+${clickPower}`);
-    });
-
-    buyAutoClicker.addEventListener('click', () => {
-      if (score >= 50) {
-        score -= 50;
-        autoClickerCount++;
-        updateScore();
+      // Update UI display
+      function updateUI() {
+        pointsEl.textContent = Math.floor(points);
+        ppcEl.textContent = pointsPerClick;
+        autoEl.textContent = autoClickers;
+        costClickEl.textContent = costClick;
+        costAutoEl.textContent = costAuto;
       }
-    });
-
-    buyDoubleClick.addEventListener('click', () => {
-      if (score >= 100) {
-        score -= 100;
-        clickPower *= 2;
-        buyDoubleClick.disabled = true;
-        updateScore();
+      
+      // Function to show animated floating reward text
+      function showReward(x, y, text) {
+        const reward = document.createElement('div');
+        reward.className = 'reward';
+        reward.style.left = x + 'px';
+        reward.style.top = y + 'px';
+        reward.textContent = text;
+        document.body.appendChild(reward);
+        // Remove the element after animation completes
+        setTimeout(() => {
+          if(reward && reward.parentNode) reward.parentNode.removeChild(reward);
+        }, 1000);
       }
-    });
-
-    buySuperBoost.addEventListener('click', () => {
-      if (score >= 500) {
-        score -= 500;
-        clickPower += 10;
-        buySuperBoost.disabled = true;
-        updateScore();
+      
+      // Click button event
+      clickButton.addEventListener('click', function(e){
+        points += pointsPerClick;
+        updateUI();
+        // Show reward at the click position
+        showReward(e.clientX, e.clientY, '+' + pointsPerClick);
+      });
+      
+      // Upgrade button event listeners
+      upgradeButtons.forEach(function(button) {
+        button.addEventListener('click', function(){
+          const type = button.getAttribute('data-upgrade');
+          if(type === 'click'){
+            if(points >= costClick) {
+              points -= costClick;
+              pointsPerClick++;
+              costClick = Math.floor(costClick * 1.5);
+              updateUI();
+              animateProgress('progress-click');
+            }
+          } else if(type === 'auto'){
+            if(points >= costAuto) {
+              points -= costAuto;
+              autoClickers++;
+              costAuto = Math.floor(costAuto * 1.7);
+              updateUI();
+              animateProgress('progress-auto');
+            }
+          }
+        });
+      });
+      
+      // Animate progress bar on upgrade purchase
+      function animateProgress(id) {
+        const progress = document.getElementById(id).querySelector('.progress-inner');
+        progress.style.width = '100%';
+        setTimeout(() => { progress.style.width = '0'; }, 500);
       }
-    });
-
-    function updateScore() {
-      scoreDisplay.textContent = `Score: ${score}`;
-      buyAutoClicker.disabled = score < 50;
-      buyDoubleClick.disabled = score < 100 || clickPower > 1;
-      buySuperBoost.disabled = score < 500 || clickPower > 10;
-    }
-
-    function updateProgress() {
-      progressBar.style.width = `${progress}%`;
-    }
-
-    function spawnReward(x, y, text) {
-      const reward = document.createElement('div');
-      reward.classList.add('floating-reward');
-      reward.style.left = `${x}px`;
-      reward.style.top = `${y}px`;
-      reward.textContent = text;
-      document.body.appendChild(reward);
-
-      setTimeout(() => reward.remove(), 1000);
-    }
-
-    setInterval(() => {
-      if (autoClickerCount > 0) {
-        score += autoClickerCount;
-        progress = (score % 100) / 100 * 100;
-        updateProgress();
-        updateScore();
+      
+      // Auto clicker functionality – adds points every second
+      setInterval(function(){
+        if(autoClickers > 0) {
+          points += autoClickers;
+          updateUI();
+        }
+      }, 1000);
+      
+      // Bonus event: occasional bonus points from the center of the screen
+      function bonusEvent() {
+        if(Math.random() < 0.1) { // 10% chance every 5 seconds
+          const bonus = Math.floor(Math.random()*20) + 10;
+          points += bonus;
+          updateUI();
+          showReward(window.innerWidth/2, window.innerHeight/2, 'Bonus +' + bonus);
+        }
       }
-    }, 1000);
+      setInterval(bonusEvent, 5000);
+      
+      // Save and load game state using localStorage
+      function saveGame() {
+        const state = {
+          points: points,
+          pointsPerClick: pointsPerClick,
+          autoClickers: autoClickers,
+          costClick: costClick,
+          costAuto: costAuto
+        };
+        localStorage.setItem('infiniteClickerGame', JSON.stringify(state));
+      }
+      
+      function loadGame() {
+        const saved = localStorage.getItem('infiniteClickerGame');
+        if(saved) {
+          const state = JSON.parse(saved);
+          points = state.points;
+          pointsPerClick = state.pointsPerClick;
+          autoClickers = state.autoClickers;
+          costClick = state.costClick;
+          costAuto = state.costAuto;
+          updateUI();
+        }
+      }
+      
+      // Reset game function
+      function resetGame() {
+        if(confirm("Are you sure you want to reset your game?")) {
+          points = 0;
+          pointsPerClick = 1;
+          autoClickers = 0;
+          costClick = 10;
+          costAuto = 50;
+          localStorage.removeItem('infiniteClickerGame');
+          updateUI();
+        }
+      }
+      
+      // Save game periodically every 5 seconds
+      setInterval(saveGame, 5000);
+      
+      // Load saved game on startup
+      loadGame();
+      
+      // Reset button event listener
+      resetButton.addEventListener('click', resetGame);
+      
+      // Initial UI update
+      updateUI();
+    })();
   </script>
 </body>
 </html>
