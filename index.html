@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Infinite Clicker Extreme: Ultimate Edition</title>
-  <!-- Using Google Fonts for modern typography -->
+  <!-- Google Fonts for modern typography -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Global Reset and Animated Background */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Global Reset, Non-Selectable Text, and Animated Background */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(-45deg, #1e3c72, #2a5298, #1e3c72, #2a5298);
@@ -19,30 +24,36 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
     }
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Container Styling: Centered and Clean */
+    /* Centered Container with Extra Content */
     .container {
       max-width: 900px;
       width: 100%;
       margin: 40px auto;
       padding: 20px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
       text-align: center;
+      position: relative;
     }
-    header {
-      margin-bottom: 20px;
-    }
+    header { margin-bottom: 20px; }
     header h1 {
       font-size: 2.5em;
       letter-spacing: 1px;
       margin-bottom: 10px;
+    }
+    /* Tagline to fill space */
+    .tagline {
+      font-size: 1.1em;
+      margin-top: 20px;
+      opacity: 0.8;
     }
     /* Navigation Tabs */
     nav {
@@ -53,13 +64,13 @@
     }
     nav button {
       margin: 5px;
-      /* Inherited button style will be applied */
+      /* Inherits global button style */
     }
     nav button.active,
     nav button:hover {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
     }
-    /* Global Button Style: Addictive Design & Animations */
+    /* Global Addictive Button Style */
     button {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
       border: none;
@@ -69,7 +80,7 @@
       border-radius: 50px;
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
       text-align: center;
@@ -77,15 +88,15 @@
     button:focus { outline: none; }
     button:hover {
       transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     }
-    /* Ripple effect already defined for clickButton remains */
+    /* Ripple Effect */
     .ripple {
       position: absolute;
       border-radius: 50%;
       transform: scale(0);
       animation: ripple 0.6s linear;
-      background-color: rgba(255,255,255,0.7);
+      background-color: rgba(255, 255, 255, 0.7);
     }
     @keyframes ripple {
       to { transform: scale(4); opacity: 0; }
@@ -99,7 +110,7 @@
       flex-wrap: wrap;
     }
     .stats div { margin: 10px; }
-    /* Click Button Specific (inherits global style) */
+    /* Specific Button Adjustments */
     #clickButton {
       margin: 20px auto;
       display: block;
@@ -107,7 +118,7 @@
     /* Upgrades Styling */
     .upgrades { margin-top: 30px; }
     .upgrade-item {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       padding: 15px;
       margin: 10px;
       border-radius: 8px;
@@ -115,7 +126,7 @@
       width: 260px;
       vertical-align: top;
       transition: transform 0.3s;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
       text-align: left;
     }
     .upgrade-item:hover { transform: translateY(-5px); }
@@ -140,9 +151,9 @@
       background: #27ae60;
       transition: width 0.5s;
     }
-    /* Achievements Screen */
+    /* Achievements Styling */
     .achievement {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 10px;
       margin: 10px;
       border-radius: 5px;
@@ -153,7 +164,7 @@
     }
     .achievement.locked { opacity: 0.5; }
     .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
-    /* Fixed Buttons: Reset and Daily Bonus */
+    /* Fixed Buttons for Daily Bonus and Reset */
     #resetButton, #dailyBonusButton {
       position: fixed;
       bottom: 20px;
@@ -168,9 +179,68 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    /* Popup Notification Styles */
+    #popup-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+    .popup {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      color: #fff;
+      animation: popupFade 3s forwards;
+      font-size: 1em;
+    }
+    @keyframes popupFade {
+      0% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+    /* Modal Confirmation Styles */
+    #modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    #modal {
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    #modal p {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    #modal button {
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
+  <!-- Popup and Modal Containers -->
+  <div id="popup-container"></div>
+  <div id="modal-container">
+    <div id="modal">
+      <p id="modal-message"></p>
+      <button id="modal-yes">Yes</button>
+      <button id="modal-no">No</button>
+    </div>
+  </div>
+  
   <header>
     <h1>Infinite Clicker Extreme: Ultimate Edition</h1>
     <nav>
@@ -216,6 +286,8 @@
       <button id="prestigeButton">Prestige (Reset for bonus)</button>
       <p style="margin-top:15px; font-size:0.9em;">(You need at least 1000 points to prestige)</p>
     </div>
+    <!-- Tagline -->
+    <div class="tagline">Keep clicking for endless fun!</div>
   </div>
   
   <!-- Fixed Buttons -->
@@ -263,7 +335,42 @@
       const navButtons = document.querySelectorAll('nav button');
       const screens = document.querySelectorAll('.screen');
       
-      /*** UTILITY FUNCTIONS ***/
+      /*** Popup Notification System ***/
+      const popupContainer = document.getElementById('popup-container');
+      function showPopup(message) {
+        const popup = document.createElement('div');
+        popup.className = 'popup';
+        popup.textContent = message;
+        popupContainer.appendChild(popup);
+        setTimeout(() => { popup.remove(); }, 3000);
+      }
+      
+      /*** Modal Confirmation System ***/
+      const modalContainer = document.getElementById('modal-container');
+      const modalMessage = document.getElementById('modal-message');
+      const modalYes = document.getElementById('modal-yes');
+      const modalNo = document.getElementById('modal-no');
+      function showConfirm(message, callback) {
+        modalMessage.textContent = message;
+        modalContainer.style.display = 'flex';
+        function cleanUp() {
+          modalYes.removeEventListener('click', yesHandler);
+          modalNo.removeEventListener('click', noHandler);
+          modalContainer.style.display = 'none';
+        }
+        function yesHandler() {
+          cleanUp();
+          callback(true);
+        }
+        function noHandler() {
+          cleanUp();
+          callback(false);
+        }
+        modalYes.addEventListener('click', yesHandler);
+        modalNo.addEventListener('click', noHandler);
+      }
+      
+      /*** Utility Functions ***/
       function updateUI() {
         pointsEl.textContent = Math.floor(points);
         ppcEl.textContent = pointsPerClick.toFixed(2);
@@ -309,7 +416,7 @@
         updateUI();
         showReward(e.clientX, e.clientY, '+' + added.toFixed(0));
         
-        // Create ripple effect
+        // Ripple effect
         const ripple = document.createElement('span');
         ripple.className = 'ripple';
         let rect = clickButton.getBoundingClientRect();
@@ -347,7 +454,7 @@
         const lastClaim = localStorage.getItem('dailyBonusTime');
         const now = Date.now();
         if(lastClaim && now - lastClaim < 24 * 60 * 60 * 1000) {
-          alert("Daily bonus already claimed. Come back later!");
+          showPopup("Daily bonus already claimed. Come back later!");
           return;
         }
         const bonus = Math.floor(Math.random()*200) + 100;
@@ -397,7 +504,7 @@
           updateUI();
           animateProgress('progress-' + upg.id);
         } else {
-          alert("Not enough points for this upgrade!");
+          showPopup("Not enough points for this upgrade!");
         }
       }
       
@@ -413,7 +520,7 @@
         achievements.forEach(achv => {
           if(!achv.achieved && achv.condition()) {
             achv.achieved = true;
-            alert("Achievement Unlocked: " + achv.name);
+            showPopup("Achievement Unlocked: " + achv.name);
           }
           const div = document.createElement('div');
           div.className = 'achievement ' + (achv.achieved ? 'unlocked' : 'locked');
@@ -425,48 +532,52 @@
       /*** Prestige System ***/
       prestigeButton.addEventListener('click', function(){
         if(points < 1000) {
-          alert("You need at least 1000 points to prestige!");
+          showPopup("You need at least 1000 points to prestige!");
           return;
         }
-        if(confirm("Prestiging will reset your game but grant you a bonus multiplier. Continue?")) {
-          const gained = Math.floor(points / 1000);
-          prestigePoints += gained;
-          points = 0;
-          pointsPerClick = 1;
-          autoClickers = 0;
-          upgrades.forEach(upg => {
-            upg.count = 0;
-            if(upg.id === 'clickUpgrade') upg.cost = 10;
-            if(upg.id === 'autoUpgrade') upg.cost = 50;
-            if(upg.id === 'multiUpgrade') upg.cost = 100;
-            if(upg.id === 'luckyUpgrade') upg.cost = 200;
-          });
-          totalClicks = 0;
-          totalUpgradesPurchased = 0;
-          updateUI();
-          alert("Prestige successful! You gained " + gained + " prestige points.");
-        }
+        showConfirm("Prestiging will reset your game but grant you a bonus multiplier. Continue?", function(confirmed){
+          if(confirmed) {
+            const gained = Math.floor(points / 1000);
+            prestigePoints += gained;
+            points = 0;
+            pointsPerClick = 1;
+            autoClickers = 0;
+            upgrades.forEach(upg => {
+              upg.count = 0;
+              if(upg.id === 'clickUpgrade') upg.cost = 10;
+              if(upg.id === 'autoUpgrade') upg.cost = 50;
+              if(upg.id === 'multiUpgrade') upg.cost = 100;
+              if(upg.id === 'luckyUpgrade') upg.cost = 200;
+            });
+            totalClicks = 0;
+            totalUpgradesPurchased = 0;
+            updateUI();
+            showPopup("Prestige successful! You gained " + gained + " prestige points.");
+          }
+        });
       });
       
       /*** Reset Game ***/
       resetButton.addEventListener('click', function(){
-        if(confirm("Are you sure you want to reset your game? This cannot be undone.")) {
-          points = 0;
-          pointsPerClick = 1;
-          autoClickers = 0;
-          prestigePoints = 0;
-          upgrades.forEach(upg => {
-            upg.count = 0;
-            if(upg.id === 'clickUpgrade') upg.cost = 10;
-            if(upg.id === 'autoUpgrade') upg.cost = 50;
-            if(upg.id === 'multiUpgrade') upg.cost = 100;
-            if(upg.id === 'luckyUpgrade') upg.cost = 200;
-          });
-          totalClicks = 0;
-          totalUpgradesPurchased = 0;
-          localStorage.removeItem('infiniteClickerUltimate');
-          updateUI();
-        }
+        showConfirm("Are you sure you want to reset your game? This cannot be undone.", function(confirmed){
+          if(confirmed) {
+            points = 0;
+            pointsPerClick = 1;
+            autoClickers = 0;
+            prestigePoints = 0;
+            upgrades.forEach(upg => {
+              upg.count = 0;
+              if(upg.id === 'clickUpgrade') upg.cost = 10;
+              if(upg.id === 'autoUpgrade') upg.cost = 50;
+              if(upg.id === 'multiUpgrade') upg.cost = 100;
+              if(upg.id === 'luckyUpgrade') upg.cost = 200;
+            });
+            totalClicks = 0;
+            totalUpgradesPurchased = 0;
+            localStorage.removeItem('infiniteClickerUltimate');
+            updateUI();
+          }
+        });
       });
       
       /*** Save & Load Game ***/
