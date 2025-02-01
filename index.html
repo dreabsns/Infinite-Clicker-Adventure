@@ -28,7 +28,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       position: relative;
       padding: 20px;
     }
@@ -37,25 +36,16 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    /* Hauptcontainer – zentriert (auf Laptops in der Mitte) */
-    .container {
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+    /* Fixierter Header, damit das Menü immer sichtbar bleibt */
+    header {
+      position: fixed;
+      top: 0;
       width: 100%;
       max-width: 900px;
-    }
-    /* Header & Navigation – innerhalb des Containers, nicht am Bildschirmrand */
-    header {
-      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1100;
       text-align: center;
-      margin-bottom: 10px;
+      padding: 10px 0;
     }
     header h1 {
       font-size: 2.5em;
@@ -66,7 +56,7 @@
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
     nav button {
       margin: 5px;
@@ -76,6 +66,21 @@
     nav button.active,
     nav button:hover {
       background: linear-gradient(45deg, #ff6f61, #ff8a65);
+    }
+    /* Container: Muss einen oberen Abstand haben, damit der fixierte Header nicht verdeckt */
+    .container {
+      margin-top: 120px; /* Abstand, damit der Header immer sichtbar bleibt */
+      max-width: 900px;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
     /* Decorative Tagline */
     .tagline {
@@ -154,7 +159,7 @@
       pointer-events: none;
     }
     .stats div { margin: 10px; }
-    /* Spielbereich: Klickbereich direkt unter der Navigation */
+    /* Game Screen: Klickbereich direkt unter der Navigation */
     #gameScreen {
       margin-top: 0;
     }
@@ -283,7 +288,8 @@
     /* Responsive Optimierung für verschiedene Geräte */
     @media (max-width: 600px) {
       .container {
-        margin: 10px auto;
+        margin-top: 100px; /* Erhöhter Abstand, da Header fixiert */
+        margin-bottom: 20px;
         padding: 15px;
       }
       header h1 {
@@ -308,10 +314,13 @@
         font-size: 0.9em;
       }
     }
-    /* Für größere Bildschirme (z. B. Laptops) zentrieren wir den Container */
+    /* Für größere Bildschirme (z. B. Laptops) */
     @media (min-width: 901px) {
       body {
         justify-content: center;
+      }
+      .container {
+        margin-top: 120px;
       }
     }
   </style>
