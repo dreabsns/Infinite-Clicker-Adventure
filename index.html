@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Ultimativer Shooter</title>
+    <title>Pseudo-3D Shooter</title>
     <style>
         /* --- CSS Stildefinitionen --- */
         body {
@@ -13,7 +13,7 @@
         #gameCanvas {
             display: block;
             margin: 0 auto;
-            background-color: #111;
+            background-color: #1a1a1a;
         }
     </style>
 </head>
@@ -21,7 +21,7 @@
     <canvas id="gameCanvas"></canvas>
 
     <script>
-        /* --- Spiel Logik --- */
+        /* --- Pseudo-3D Shooter Spiel --- */
 
         // Canvas initialisieren
         const canvas = document.getElementById('gameCanvas');
@@ -35,21 +35,29 @@
             canvas.height = window.innerHeight;
         });
 
+        // Spielvariablen
+        const keys = {};
+        let player, obstacles, bullets, score, speed;
+
         // Spielerklasse
         class Player {
             constructor() {
                 this.width = 50;
-                this.height = 50;
+                this.height = 75;
                 this.x = canvas.width / 2 - this.width / 2;
-                this.y = canvas.height - this.height - 20;
-                this.speed = 7;
+                this.y = canvas.height - this.height - 30;
                 this.color = '#00ff99';
-                this.bullets = [];
+                this.speed = 7;
             }
 
             draw() {
                 ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y);
+                ctx.lineTo(this.x + this.width, this.y + this.height);
+                ctx.lineTo(this.x, this.y + this.height);
+                ctx.closePath();
+                ctx.fill();
             }
 
             move() {
@@ -59,17 +67,27 @@
                 if (keys['ArrowRight'] && this.x + this.width < canvas.width) {
                     this.x += this.speed;
                 }
-                if (keys['ArrowUp'] && this.y > 0) {
-                    this.y -= this.speed;
-                }
-                if (keys['ArrowDown'] && this.y + this.height < canvas.height) {
-                    this.y += this.speed;
-                }
+            }
+        }
+
+        // Hindernis (Gegner) Klasse
+        class Obstacle {
+            constructor(x, width, speed) {
+                this.x = x;
+                this.y = -50;
+                this.width = width;
+                this.height = 50;
+                this.speed = speed;
+                this.color = '#ff3366';
             }
 
-            shoot() {
-                const bullet = new Bullet(this.x + this.width / 2, this.y);
-                this.bullets.push(bullet);
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                this.y += this.speed;
             }
         }
 
@@ -96,40 +114,11 @@
             }
         }
 
-        // Gegnerklasse
-        class Enemy {
-            constructor(x, y, speed) {
-                this.width = 50;
-                this.height = 50;
-                this.x = x;
-                this.y = y;
-                this.speed = speed;
-                this.color = '#ff3366';
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-
-            update() {
-                this.y += this.speed;
-            }
-        }
-
-        // Spielvariablen
-        const player = new Player();
-        const enemies = [];
-        const keys = {};
-        let score = 0;
-        let frames = 0;
-        let enemyFrequency = 60; // Je kleiner, desto häufiger erscheinen Gegner
-
         // Tastatureingaben erfassen
         window.addEventListener('keydown', (e) => {
             keys[e.key] = true;
             if (e.key === ' ') {
-                player.shoot();
+                shoot();
             }
         });
 
@@ -137,62 +126,78 @@
             keys[e.key] = false;
         });
 
+        // Schießen
+        function shoot() {
+            const bullet = new Bullet(player.x + player.width / 2, player.y);
+            bullets.push(bullet);
+        }
+
+        // Initialisierung
+        function init() {
+            player = new Player();
+            obstacles = [];
+            bullets = [];
+            score = 0;
+            speed = 5;
+        }
+
         // Hauptspielschleife
+        let frame = 0;
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            frames++;
+            frame++;
 
             // Spieleraktionen
             player.move();
             player.draw();
 
             // Kugeln aktualisieren
-            player.bullets.forEach((bullet, bulletIndex) => {
+            bullets.forEach((bullet, bulletIndex) => {
                 bullet.update();
                 bullet.draw();
 
                 // Entferne Kugeln außerhalb des Bildschirms
                 if (bullet.y + bullet.radius < 0) {
-                    player.bullets.splice(bulletIndex, 1);
+                    bullets.splice(bulletIndex, 1);
                 }
             });
 
-            // Gegner erzeugen
-            if (frames % enemyFrequency === 0) {
-                const xPos = Math.random() * (canvas.width - 50);
-                const speed = Math.random() * 3 + 2;
-                const enemy = new Enemy(xPos, -50, speed);
-                enemies.push(enemy);
+            // Hindernisse erzeugen
+            if (frame % 20 === 0) {
+                const obstacleWidth = Math.random() * 100 + 50;
+                const xPos = Math.random() * (canvas.width - obstacleWidth);
+                const obstacle = new Obstacle(xPos, obstacleWidth, speed);
+                obstacles.push(obstacle);
             }
 
-            // Gegner aktualisieren
-            enemies.forEach((enemy, enemyIndex) => {
-                enemy.update();
-                enemy.draw();
+            // Hindernisse aktualisieren
+            obstacles.forEach((obstacle, obstacleIndex) => {
+                obstacle.update();
+                obstacle.draw();
 
                 // Kollision mit Kugeln
-                player.bullets.forEach((bullet, bulletIndex) => {
-                    if (isColliding(bullet, enemy)) {
-                        // Gegner und Kugel entfernen
-                        setTimeout(() => {
-                            enemies.splice(enemyIndex, 1);
-                            player.bullets.splice(bulletIndex, 1);
-                            score += 10;
-                        }, 0);
+                bullets.forEach((bullet, bulletIndex) => {
+                    if (isColliding(bullet, obstacle)) {
+                        bullets.splice(bulletIndex, 1);
+                        obstacles.splice(obstacleIndex, 1);
+                        score += 10;
                     }
                 });
 
                 // Kollision mit Spieler
-                if (isColliding(player, enemy)) {
+                if (isColliding(player, obstacle)) {
                     alert('Spiel vorbei! Dein Score: ' + score);
                     document.location.reload();
                 }
 
-                // Entferne Gegner außerhalb des Bildschirms
-                if (enemy.y > canvas.height) {
-                    enemies.splice(enemyIndex, 1);
+                // Entferne Hindernisse außerhalb des Bildschirms
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(obstacleIndex, 1);
                 }
             });
+
+            // Boden zeichnen (Pseudo-3D-Effekt)
+            drawGround();
 
             // Score anzeigen
             ctx.fillStyle = '#fff';
@@ -200,6 +205,18 @@
             ctx.fillText('Score: ' + score, 10, 30);
 
             requestAnimationFrame(gameLoop);
+        }
+
+        // Boden zeichnen für Pseudo-3D-Effekt
+        function drawGround() {
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.lineTo(canvas.width / 2 - 100, canvas.height / 2);
+            ctx.lineTo(canvas.width / 2 + 100, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
         }
 
         // Kollisionsprüfung
@@ -213,6 +230,7 @@
         }
 
         // Spiel starten
+        init();
         gameLoop();
     </script>
 </body>
