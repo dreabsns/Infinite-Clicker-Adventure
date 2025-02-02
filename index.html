@@ -2,235 +2,449 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Pseudo-3D Shooter</title>
+    <title>Pseudo-3D Shooter Game</title>
     <style>
-        /* --- CSS Stildefinitionen --- */
+        /* --- Stile für das Spiel --- */
         body {
             margin: 0;
             overflow: hidden;
             background-color: #000;
+            font-family: Arial, sans-serif;
         }
         #gameCanvas {
             display: block;
             margin: 0 auto;
-            background-color: #1a1a1a;
+            background-color: #000;
+        }
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            z-index: 1;
+        }
+        #miniMap {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
         }
     </style>
 </head>
 <body>
+    <div id="hud">
+        <div id="health">Leben: 100%</div>
+        <div id="ammo">Munition: 50</div>
+        <div id="score">Punkte: 0</div>
+    </div>
     <canvas id="gameCanvas"></canvas>
+    <canvas id="miniMap" width="200" height="200"></canvas>
 
     <script>
         /* --- Pseudo-3D Shooter Spiel --- */
 
-        // Canvas initialisieren
+        // Canvas und Kontext initialisieren
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Event Listener für Fenstergröße
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        const miniMapCanvas = document.getElementById('miniMap');
+        const miniMapCtx = miniMapCanvas.getContext('2d');
 
-        // Spielvariablen
-        const keys = {};
-        let player, obstacles, bullets, score, speed;
+        // Spielerobjekt
+        const player = {
+            x: 100, // Position auf der Karte
+            y: 100,
+            dir: 0, // Blickrichtung
+            speed: 3,
+            rotSpeed: Math.PI / 90,
+            health: 100,
+            ammo: 50,
+            score: 0,
+        };
 
-        // Spielerklasse
-        class Player {
-            constructor() {
-                this.width = 50;
-                this.height = 75;
-                this.x = canvas.width / 2 - this.width / 2;
-                this.y = canvas.height - this.height - 30;
-                this.color = '#00ff99';
-                this.speed = 7;
-            }
+        // Steuerungseingaben
+        const keys = {
+            forward: false,
+            backward: false,
+            left: false,
+            right: false,
+            turnLeft: false,
+            turnRight: false,
+            shoot: false,
+        };
 
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.moveTo(this.x + this.width / 2, this.y);
-                ctx.lineTo(this.x + this.width, this.y + this.height);
-                ctx.lineTo(this.x, this.y + this.height);
-                ctx.closePath();
-                ctx.fill();
-            }
+        // Spielkarten-Daten
+        const mapWidth = 24;
+        const mapHeight = 24;
+        const mapScale = 64;
+        const miniMapScale = 4;
 
-            move() {
-                if (keys['ArrowLeft'] && this.x > 0) {
-                    this.x -= this.speed;
-                }
-                if (keys['ArrowRight'] && this.x + this.width < canvas.width) {
-                    this.x += this.speed;
-                }
-            }
-        }
+        const map = [
+            // 24 x 24 Map-Daten (0 = leerer Raum, 1 = Wand)
+            // [ ... Mapdaten hier einfügen ... ]
+        ];
 
-        // Hindernis (Gegner) Klasse
-        class Obstacle {
-            constructor(x, width, speed) {
-                this.x = x;
-                this.y = -50;
-                this.width = width;
-                this.height = 50;
-                this.speed = speed;
-                this.color = '#ff3366';
-            }
-
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-
-            update() {
-                this.y += this.speed;
+        // Für die Beispielzwecke füllen wir die Karte mit einfachen Daten
+        for (let i = 0; i < mapWidth * mapHeight; i++) {
+            if (i < mapWidth || i > mapWidth * (mapHeight - 1) || i % mapWidth === 0 || (i + 1) % mapWidth === 0) {
+                map[i] = 1; // Randmauern
+            } else {
+                map[i] = 0; // Freie Fläche
             }
         }
 
-        // Kugelklasse
-        class Bullet {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.radius = 5;
-                this.speed = 10;
-                this.color = '#ffff00';
-            }
+        // Gegnerliste
+        const enemies = [];
 
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.closePath();
-            }
+        // Kugelobjekte
+        const bullets = [];
 
-            update() {
-                this.y -= this.speed;
-            }
-        }
-
-        // Tastatureingaben erfassen
-        window.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-            if (e.key === ' ') {
-                shoot();
+        // Event Listener für Tasten
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                    keys.forward = true;
+                    break;
+                case 'ArrowDown':
+                case 's':
+                    keys.backward = true;
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                    keys.turnLeft = true;
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                    keys.turnRight = true;
+                    break;
+                case 'q':
+                    keys.left = true;
+                    break;
+                case 'e':
+                    keys.right = true;
+                    break;
+                case ' ':
+                    keys.shoot = true;
+                    break;
             }
         });
 
-        window.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
+        document.addEventListener('keyup', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                    keys.forward = false;
+                    break;
+                case 'ArrowDown':
+                case 's':
+                    keys.backward = false;
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                    keys.turnLeft = false;
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                    keys.turnRight = false;
+                    break;
+                case 'q':
+                    keys.left = false;
+                    break;
+                case 'e':
+                    keys.right = false;
+                    break;
+                case ' ':
+                    keys.shoot = false;
+                    break;
+            }
         });
-
-        // Schießen
-        function shoot() {
-            const bullet = new Bullet(player.x + player.width / 2, player.y);
-            bullets.push(bullet);
-        }
-
-        // Initialisierung
-        function init() {
-            player = new Player();
-            obstacles = [];
-            bullets = [];
-            score = 0;
-            speed = 5;
-        }
 
         // Hauptspielschleife
-        let frame = 0;
         function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            frame++;
-
-            // Spieleraktionen
-            player.move();
-            player.draw();
-
-            // Kugeln aktualisieren
-            bullets.forEach((bullet, bulletIndex) => {
-                bullet.update();
-                bullet.draw();
-
-                // Entferne Kugeln außerhalb des Bildschirms
-                if (bullet.y + bullet.radius < 0) {
-                    bullets.splice(bulletIndex, 1);
-                }
-            });
-
-            // Hindernisse erzeugen
-            if (frame % 20 === 0) {
-                const obstacleWidth = Math.random() * 100 + 50;
-                const xPos = Math.random() * (canvas.width - obstacleWidth);
-                const obstacle = new Obstacle(xPos, obstacleWidth, speed);
-                obstacles.push(obstacle);
-            }
-
-            // Hindernisse aktualisieren
-            obstacles.forEach((obstacle, obstacleIndex) => {
-                obstacle.update();
-                obstacle.draw();
-
-                // Kollision mit Kugeln
-                bullets.forEach((bullet, bulletIndex) => {
-                    if (isColliding(bullet, obstacle)) {
-                        bullets.splice(bulletIndex, 1);
-                        obstacles.splice(obstacleIndex, 1);
-                        score += 10;
-                    }
-                });
-
-                // Kollision mit Spieler
-                if (isColliding(player, obstacle)) {
-                    alert('Spiel vorbei! Dein Score: ' + score);
-                    document.location.reload();
-                }
-
-                // Entferne Hindernisse außerhalb des Bildschirms
-                if (obstacle.y > canvas.height) {
-                    obstacles.splice(obstacleIndex, 1);
-                }
-            });
-
-            // Boden zeichnen (Pseudo-3D-Effekt)
-            drawGround();
-
-            // Score anzeigen
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px Arial';
-            ctx.fillText('Score: ' + score, 10, 30);
-
+            update();
+            render();
             requestAnimationFrame(gameLoop);
         }
 
-        // Boden zeichnen für Pseudo-3D-Effekt
-        function drawGround() {
-            ctx.fillStyle = '#333';
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height);
-            ctx.lineTo(canvas.width / 2 - 100, canvas.height / 2);
-            ctx.lineTo(canvas.width / 2 + 100, canvas.height / 2);
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.closePath();
-            ctx.fill();
+        // Spielzustand aktualisieren
+        function update() {
+            // Spielerbewegung
+            let moveStep = 0;
+            if (keys.forward) moveStep += player.speed;
+            if (keys.backward) moveStep -= player.speed;
+
+            let newX = player.x + Math.cos(player.dir) * moveStep;
+            let newY = player.y + Math.sin(player.dir) * moveStep;
+
+            if (!isBlocking(newX, player.y)) player.x = newX;
+            if (!isBlocking(player.x, newY)) player.y = newY;
+
+            // Seitliche Bewegung
+            let sideStep = 0;
+            if (keys.left) sideStep -= player.speed;
+            if (keys.right) sideStep += player.speed;
+
+            newX = player.x + Math.cos(player.dir + Math.PI / 2) * sideStep;
+            newY = player.y + Math.sin(player.dir + Math.PI / 2) * sideStep;
+
+            if (!isBlocking(newX, player.y)) player.x = newX;
+            if (!isBlocking(player.x, newY)) player.y = newY;
+
+            // Drehung
+            if (keys.turnLeft) player.dir -= player.rotSpeed;
+            if (keys.turnRight) player.dir += player.rotSpeed;
+
+            // Schießen
+            if (keys.shoot && player.ammo > 0) {
+                fireBullet();
+                player.ammo--;
+                keys.shoot = false; // Einzelner Schuss pro Tastendruck
+            }
+
+            // Kugeln aktualisieren
+            bullets.forEach((bullet, index) => {
+                bullet.x += bullet.dx;
+                bullet.y += bullet.dy;
+
+                // Überprüfung auf Kollision mit Wänden
+                if (isBlocking(bullet.x, bullet.y)) {
+                    bullets.splice(index, 1);
+                    return;
+                }
+
+                // Überprüfung auf Kollision mit Gegnern
+                enemies.forEach((enemy, eIndex) => {
+                    const dist = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y);
+                    if (dist < 10) {
+                        enemies.splice(eIndex, 1);
+                        bullets.splice(index, 1);
+                        player.score += 100;
+                    }
+                });
+            });
+
+            // Gegnerbewegung
+            enemies.forEach((enemy) => {
+                const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Überprüfung auf Kollision mit Spieler
+                const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                if (dist < 15) {
+                    player.health -= 1;
+                    if (player.health <= 0) {
+                        alert('Spiel vorbei! Dein Punktestand: ' + player.score);
+                        document.location.reload();
+                    }
+                }
+            });
+
+            // Gegner zufällig generieren
+            if (Math.random() < 0.02) {
+                spawnEnemy();
+            }
+
+            // HUD aktualisieren
+            document.getElementById('health').innerText = 'Leben: ' + player.health + '%';
+            document.getElementById('ammo').innerText = 'Munition: ' + player.ammo;
+            document.getElementById('score').innerText = 'Punkte: ' + player.score;
         }
 
-        // Kollisionsprüfung
-        function isColliding(a, b) {
-            return (
-                a.x < b.x + b.width &&
-                a.x + (a.width || a.radius * 2) > b.x &&
-                a.y < b.y + b.height &&
-                a.y + (a.height || a.radius * 2) > b.y
+        // Rendern der Szene
+        function render() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Raycasting-Logik
+            for (let x = 0; x < canvas.width; x++) {
+                const cameraX = 2 * x / canvas.width - 1;
+                const rayDirX = Math.cos(player.dir) + cameraX * Math.cos(player.dir + Math.PI / 2);
+                const rayDirY = Math.sin(player.dir) + cameraX * Math.sin(player.dir + Math.PI / 2);
+
+                let mapX = Math.floor(player.x / mapScale);
+                let mapY = Math.floor(player.y / mapScale);
+
+                const deltaDistX = Math.abs(1 / rayDirX);
+                const deltaDistY = Math.abs(1 / rayDirY);
+
+                let sideDistX;
+                let sideDistY;
+
+                let stepX;
+                let stepY;
+
+                let hit = 0;
+                let side;
+
+                if (rayDirX < 0) {
+                    stepX = -1;
+                    sideDistX = (player.x / mapScale - mapX) * deltaDistX;
+                } else {
+                    stepX = 1;
+                    sideDistX = (mapX + 1.0 - player.x / mapScale) * deltaDistX;
+                }
+                if (rayDirY < 0) {
+                    stepY = -1;
+                    sideDistY = (player.y / mapScale - mapY) * deltaDistY;
+                } else {
+                    stepY = 1;
+                    sideDistY = (mapY + 1.0 - player.y / mapScale) * deltaDistY;
+                }
+
+                while (hit === 0) {
+                    if (sideDistX < sideDistY) {
+                        sideDistX += deltaDistX;
+                        mapX += stepX;
+                        side = 0;
+                    } else {
+                        sideDistY += deltaDistY;
+                        mapY += stepY;
+                        side = 1;
+                    }
+                    if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight) {
+                        if (map[mapY * mapWidth + mapX] > 0) hit = 1;
+                    } else {
+                        hit = 1;
+                    }
+                }
+
+                let perpWallDist;
+                if (side === 0) {
+                    perpWallDist = (sideDistX - deltaDistX);
+                } else {
+                    perpWallDist = (sideDistY - deltaDistY);
+                }
+
+                const lineHeight = Math.floor(canvas.height / perpWallDist);
+
+                let drawStart = -lineHeight / 2 + canvas.height / 2;
+                if (drawStart < 0) drawStart = 0;
+                let drawEnd = lineHeight / 2 + canvas.height / 2;
+                if (drawEnd >= canvas.height) drawEnd = canvas.height - 1;
+
+                // Farbe basierend auf Seite
+                let color;
+                if (map[mapY * mapWidth + mapX] === 1) {
+                    color = side === 0 ? '#888' : '#555';
+                }
+
+                ctx.strokeStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(x, drawStart);
+                ctx.lineTo(x, drawEnd);
+                ctx.stroke();
+            }
+
+            // Gegner rendern
+            enemies.forEach((enemy) => {
+                const spriteX = enemy.x - player.x;
+                const spriteY = enemy.y - player.y;
+
+                const invDet = 1.0 / (Math.cos(player.dir + Math.PI / 2) * Math.sin(player.dir) - Math.cos(player.dir) * Math.sin(player.dir + Math.PI / 2));
+
+                const transformX = invDet * (Math.sin(player.dir) * spriteX - Math.cos(player.dir) * spriteY);
+                const transformY = invDet * (-Math.sin(player.dir + Math.PI / 2) * spriteX + Math.cos(player.dir + Math.PI / 2) * spriteY);
+
+                const spriteScreenX = Math.floor((canvas.width / 2) * (1 + transformX / transformY));
+
+                const spriteHeight = Math.abs(Math.floor(canvas.height / transformY));
+                const drawStartY = -spriteHeight / 2 + canvas.height / 2;
+                const drawEndY = spriteHeight / 2 + canvas.height / 2;
+
+                const spriteWidth = spriteHeight;
+                const drawStartX = -spriteWidth / 2 + spriteScreenX;
+                const drawEndX = spriteWidth / 2 + spriteScreenX;
+
+                ctx.fillStyle = enemy.color;
+                ctx.fillRect(drawStartX, drawStartY, spriteWidth, spriteHeight);
+            });
+
+            // Minimap rendern
+            renderMiniMap();
+        }
+
+        // Minimap zeichnen
+        function renderMiniMap() {
+            miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+            // Karte zeichnen
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    if (map[y * mapWidth + x] > 0) {
+                        miniMapCtx.fillStyle = '#ffffff';
+                        miniMapCtx.fillRect(
+                            x * miniMapScale,
+                            y * miniMapScale,
+                            miniMapScale,
+                            miniMapScale
+                        );
+                    }
+                }
+            }
+
+            // Spieler zeichnen
+            miniMapCtx.fillStyle = '#00ff00';
+            miniMapCtx.fillRect(
+                (player.x / mapScale) * miniMapScale - 2,
+                (player.y / mapScale) * miniMapScale - 2,
+                4,
+                4
             );
+
+            // Gegner zeichnen
+            enemies.forEach((enemy) => {
+                miniMapCtx.fillStyle = '#ff0000';
+                miniMapCtx.fillRect(
+                    (enemy.x / mapScale) * miniMapScale - 2,
+                    (enemy.y / mapScale) * miniMapScale - 2,
+                    4,
+                    4
+                );
+            });
+        }
+
+        // Überprüfung, ob Position blockiert ist
+        function isBlocking(x, y) {
+            const mapX = Math.floor(x / mapScale);
+            const mapY = Math.floor(y / mapScale);
+            if (mapX < 0 || mapX >= mapWidth || mapY < 0 || mapY >= mapHeight) return true;
+            return map[mapY * mapWidth + mapX] > 0;
+        }
+
+        // Kugel abfeuern
+        function fireBullet() {
+            const bullet = {
+                x: player.x,
+                y: player.y,
+                dx: Math.cos(player.dir) * 10,
+                dy: Math.sin(player.dir) * 10,
+            };
+            bullets.push(bullet);
+        }
+
+        // Gegner erzeugen
+        function spawnEnemy() {
+            const positions = [
+                { x: 200, y: 200 },
+                { x: 300, y: 300 },
+                { x: 400, y: 400 },
+                { x: 500, y: 500 },
+            ];
+            const pos = positions[Math.floor(Math.random() * positions.length)];
+            const enemy = {
+                x: pos.x,
+                y: pos.y,
+                speed: 1.5,
+                color: '#ff0000',
+            };
+            enemies.push(enemy);
         }
 
         // Spiel starten
-        init();
         gameLoop();
     </script>
 </body>
