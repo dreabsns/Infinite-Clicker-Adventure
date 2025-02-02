@@ -2,174 +2,251 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Doom-Klon Framework</title>
+  <title>Minimal DOOM Klon</title>
   <style>
-    /* Basis-Styles */
+    /* Basis-Styling: Vollbild-Canvas, pixelige Darstellung */
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       overflow: hidden;
+      height: 100%;
     }
     canvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       image-rendering: pixelated;
+      background: #000;
     }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
   <script>
-    // Setup Canvas
+    /***********************************************************************
+     * Minimal DOOM Klon – Ein einfacher Raycasting-Engine-Klon
+     *
+     * Dieser Code implementiert:
+     * - Ein 2D-Map-Layout (Wände = 1, leere Bereiche = 0)
+     * - Einen Spieler mit Position, Blickrichtung und einfachem FOV
+     * - Tastatureingaben (Vorwärts, Rückwärts, Rotation)
+     * - Einen Raycasting-Algorithmus (DDA), der pro vertikaler Spalte
+     *   einen Strahl abfeuert und die Wanddistanz berechnet
+     * - Eine einfache Darstellung der Wände (Farbnuancen je nach Seitenlage)
+     * - Zusätzliche Darstellung von "Gegnern" als rudimentäre Sprites
+     *
+     * Hinweis: Dies ist ein vereinfachter Ansatz – echte DOOM-Mechaniken wie:
+     * - Komplexe Level-Daten mit Portalen
+     * - Textur-Mapping statt einfarbiger Wände
+     * - Animationen, Sound, Waffenwechsel, Kollisionsabfragen,
+     *   Gegner-KI und vieles mehr
+     * würden einen erheblich größeren Codeumfang erfordern.
+     ************************************************************************/
+
+    // Canvas-Setup
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Spieler-Daten (als Beispiel)
-    const player = {
-      x: 3.5,
+    // Einfaches Level-Layout (2D-Array; 1 = Wand, 0 = leer)
+    const map = [
+      [1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,0,0,0,0,0,1],
+      [1,0,0,0,1,1,1,0,0,0,0,1],
+      [1,0,0,0,1,0,1,0,0,0,0,1],
+      [1,0,0,0,1,0,1,0,0,0,0,1],
+      [1,0,0,0,1,0,1,1,1,0,0,1],
+      [1,0,0,0,1,0,0,0,1,0,0,1],
+      [1,0,0,0,1,1,1,0,1,0,0,1],
+      [1,0,0,0,0,0,0,0,1,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1]
+    ];
+    const mapWidth = map[0].length;
+    const mapHeight = map.length;
+    const tileSize = 64; // fiktive Tile-Größe (nur für Berechnungen)
+
+    // Spieler-Daten
+    let player = {
+      x: 3.5,             // Startposition (in Map-Einheiten)
       y: 3.5,
-      angle: 0,         // Blickrichtung in Radiant
-      health: 100,
-      speed: 0.05
+      angle: 0,           // Blickrichtung (in Radiant)
+      fov: Math.PI / 3,   // Sichtfeld 60°
+      moveSpeed: 0.05,
+      rotSpeed: 0.03
     };
 
-    // Beispielhafte Level-Daten (sehr einfach gehalten)
-    // 0 = leerer Raum, 1 = Wand
-    const level = {
-      map: [
-        [1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,1],
-        [1,0,1,0,1,0,1,0,0,1],
-        [1,0,1,0,0,0,1,0,0,1],
-        [1,0,1,1,1,0,1,0,0,1],
-        [1,0,0,0,0,0,1,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1]
-      ],
-      tileSize: 64
-    };
+    // Dummy-Gegner (einfach als Punkte)
+    let enemies = [
+      { x: 5.5, y: 5.5, alive: true },
+      { x: 7.5, y: 3.5, alive: true }
+    ];
 
-    // Tastatureingaben verwalten
-    const keys = {};
-    window.addEventListener("keydown", e => keys[e.code] = true);
-    window.addEventListener("keyup", e => keys[e.code] = false);
+    // Tastatureingabe erfassen
+    let keys = {};
+    window.addEventListener("keydown", e => { keys[e.code] = true; });
+    window.addEventListener("keyup", e => { keys[e.code] = false; });
 
-    // Haupt-Spielschleife
-    function gameLoop() {
-      update();
-      render();
-      requestAnimationFrame(gameLoop);
-    }
-
-    // Update-Funktion: Steuereingaben, Spielphysik, Gegner‑KI etc.
-    function update() {
-      // Beispiel: Vorwärtsbewegung
+    // Spieler-Update: Bewegung und Rotation
+    function updatePlayer() {
+      // Vorwärtsbewegung
       if (keys["ArrowUp"]) {
-        const nextX = player.x + Math.cos(player.angle) * player.speed;
-        const nextY = player.y + Math.sin(player.angle) * player.speed;
-        if (level.map[Math.floor(nextY)][Math.floor(nextX)] === 0) {
-          player.x = nextX;
-          player.y = nextY;
+        let newX = player.x + Math.cos(player.angle) * player.moveSpeed;
+        let newY = player.y + Math.sin(player.angle) * player.moveSpeed;
+        if (map[Math.floor(newY)][Math.floor(newX)] === 0) {
+          player.x = newX;
+          player.y = newY;
         }
       }
-      // Beispiel: Rückwärtsbewegung
+      // Rückwärtsbewegung
       if (keys["ArrowDown"]) {
-        const nextX = player.x - Math.cos(player.angle) * player.speed;
-        const nextY = player.y - Math.sin(player.angle) * player.speed;
-        if (level.map[Math.floor(nextY)][Math.floor(nextX)] === 0) {
-          player.x = nextX;
-          player.y = nextY;
+        let newX = player.x - Math.cos(player.angle) * player.moveSpeed;
+        let newY = player.y - Math.sin(player.angle) * player.moveSpeed;
+        if (map[Math.floor(newY)][Math.floor(newX)] === 0) {
+          player.x = newX;
+          player.y = newY;
         }
       }
-      // Beispiel: Rotation
+      // Rotation
       if (keys["ArrowLeft"]) {
-        player.angle -= 0.03;
+        player.angle -= player.rotSpeed;
       }
       if (keys["ArrowRight"]) {
-        player.angle += 0.03;
+        player.angle += player.rotSpeed;
       }
-
-      // Hier würden auch Gegner‑Logik, Kollisionen, Waffensysteme etc. aktualisiert
     }
 
-    // Render-Funktion: Zeichnet die Szene (Raycasting‑Engine)
-    function render() {
+    // Raycasting-Funktion mittels DDA
+    function castRay(rayAngle) {
+      let sinA = Math.sin(rayAngle);
+      let cosA = Math.cos(rayAngle);
+
+      let mapX = Math.floor(player.x);
+      let mapY = Math.floor(player.y);
+
+      let deltaDistX = Math.abs(1 / cosA);
+      let deltaDistY = Math.abs(1 / sinA);
+
+      let stepX, stepY;
+      let sideDistX, sideDistY;
+
+      if (cosA < 0) {
+        stepX = -1;
+        sideDistX = (player.x - mapX) * deltaDistX;
+      } else {
+        stepX = 1;
+        sideDistX = (mapX + 1 - player.x) * deltaDistX;
+      }
+      if (sinA < 0) {
+        stepY = -1;
+        sideDistY = (player.y - mapY) * deltaDistY;
+      } else {
+        stepY = 1;
+        sideDistY = (mapY + 1 - player.y) * deltaDistY;
+      }
+
+      let hit = false;
+      let side;
+      while (!hit) {
+        if (sideDistX < sideDistY) {
+          sideDistX += deltaDistX;
+          mapX += stepX;
+          side = 0;
+        } else {
+          sideDistY += deltaDistY;
+          mapY += stepY;
+          side = 1;
+        }
+        if (map[mapY] && map[mapY][mapX] > 0) hit = true;
+      }
+      let distance;
+      if (side === 0)
+        distance = (mapX - player.x + (1 - stepX) / 2) / cosA;
+      else
+        distance = (mapY - player.y + (1 - stepY) / 2) / sinA;
+
+      return { distance, side, mapX, mapY };
+    }
+
+    // Szene rendern
+    function renderScene() {
       // Bildschirm löschen
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Beispiel: Minimaler Raycasting-Ansatz für Wand-Rendering
-      const fov = Math.PI / 3; // 60° Sichtfeld
+      // Decke rendern (oberer Bildschirmhälfte)
+      ctx.fillStyle = "#444";
+      ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
+      // Boden rendern (untere Hälfte)
+      ctx.fillStyle = "#888";
+      ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
+
+      // Raycasting: Für jede vertikale Spalte im Canvas
       for (let x = 0; x < canvas.width; x++) {
-        const cameraX = 2 * x / canvas.width - 1;
-        const rayAngle = player.angle + cameraX * (fov / 2);
-
-        // Startposition des Strahls
-        let mapX = Math.floor(player.x);
-        let mapY = Math.floor(player.y);
-
-        // Berechnung der Distanz-Schritte
-        const deltaDistX = Math.abs(1 / Math.cos(rayAngle));
-        const deltaDistY = Math.abs(1 / Math.sin(rayAngle));
-
-        let stepX, stepY;
-        let sideDistX, sideDistY;
-
-        if (Math.cos(rayAngle) < 0) {
-          stepX = -1;
-          sideDistX = (player.x - mapX) * deltaDistX;
-        } else {
-          stepX = 1;
-          sideDistX = (mapX + 1.0 - player.x) * deltaDistX;
-        }
-        if (Math.sin(rayAngle) < 0) {
-          stepY = -1;
-          sideDistY = (player.y - mapY) * deltaDistY;
-        } else {
-          stepY = 1;
-          sideDistY = (mapY + 1.0 - player.y) * deltaDistY;
-        }
-
-        // DDA-Schleife zur Wandfindung
-        let hit = false;
-        let side;
-        while (!hit) {
-          if (sideDistX < sideDistY) {
-            sideDistX += deltaDistX;
-            mapX += stepX;
-            side = 0;
-          } else {
-            sideDistY += deltaDistY;
-            mapY += stepY;
-            side = 1;
-          }
-          if (level.map[mapY] && level.map[mapY][mapX] > 0) hit = true;
-        }
-
-        // Berechne die Entfernung zur Wand
-        let perpWallDist;
-        if (side === 0)
-          perpWallDist = (mapX - player.x + (1 - stepX) / 2) / Math.cos(rayAngle);
-        else
-          perpWallDist = (mapY - player.y + (1 - stepY) / 2) / Math.sin(rayAngle);
-
-        // Wandhöhe basierend auf Distanz
-        const lineHeight = Math.floor(canvas.height / perpWallDist);
-        const drawStart = -lineHeight / 2 + canvas.height / 2;
-        ctx.fillStyle = side === 0 ? "#FF5555" : "#AA0000";
+        let cameraX = 2 * x / canvas.width - 1;
+        let rayAngle = player.angle + cameraX * (player.fov / 2);
+        let ray = castRay(rayAngle);
+        // Korrektur zur Vermeidung des Fischaugen-Effekts
+        let correctedDistance = ray.distance * Math.cos(rayAngle - player.angle);
+        // Wandhöhe berechnen
+        let lineHeight = Math.floor(canvas.height / correctedDistance);
+        let drawStart = -lineHeight / 2 + canvas.height / 2;
+        // Farbschattierung: Je nachdem, ob die Wand an X- oder Y-Seite getroffen wurde
+        let shade = (ray.side === 0) ? 220 : 170;
+        ctx.fillStyle = "rgb(" + shade + "," + shade + "," + shade + ")";
         ctx.fillRect(x, drawStart, 1, lineHeight);
       }
 
-      // Hier würden auch Sprites, Gegner, HUD (z.B. Leben, Waffen) etc. gerendert
+      // Gegner rendern (als einfache Kreise, perspektivisch skaliert)
+      enemies.forEach(enemy => {
+        let dx = enemy.x - player.x;
+        let dy = enemy.y - player.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        let enemyAngle = Math.atan2(dy, dx);
+        let diffAngle = enemyAngle - player.angle;
+        // Normiere Winkel auf [-PI, PI]
+        while (diffAngle > Math.PI) diffAngle -= 2 * Math.PI;
+        while (diffAngle < -Math.PI) diffAngle += 2 * Math.PI;
+        // Bestimme Position auf dem Bildschirm (sehr vereinfacht)
+        let enemyScreenX = (diffAngle / (player.fov / 2)) * (canvas.width / 2) + (canvas.width / 2);
+        // Gegnergröße mit Distanz skalieren
+        let enemySize = Math.floor((canvas.height / distance) * 50);
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(enemyScreenX, canvas.height / 2, enemySize, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+      // HUD zeichnen (Beispiel: Spielerposition und Winkel)
+      ctx.fillStyle = "white";
+      ctx.font = "16px monospace";
+      ctx.fillText("Pos: " + player.x.toFixed(2) + ", " + player.y.toFixed(2), 10, 20);
+      ctx.fillText("Winkel: " + (player.angle * 180 / Math.PI).toFixed(0) + "°", 10, 40);
     }
 
-    // Starte die Spielschleife
+    // Haupt-Spielschleife
+    function gameLoop() {
+      updatePlayer();
+      renderScene();
+      requestAnimationFrame(gameLoop);
+    }
     gameLoop();
 
-    // Zusätzliche Module (z.B. Sound-Management, Level-Parser, Gegner‑Klassen) müssten hier hinzugefügt werden.
+    // Canvas-Größe anpassen bei Fensteränderung
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   </script>
+  <!--
+    Achtung:
+    Dieses Beispiel umfasst bereits über 250 Zeilen Code.
+    Um einen vollwertigen DOOM-Klon (mit vollständiger 3D-Engine, Texturen, Sound, komplexer Gegner-KI, interaktivem HUD etc.)
+    zu realisieren, wäre ein deutlich größerer Codeumfang (in der Größenordnung von Tausenden von Zeilen)
+    notwendig – was den Rahmen eines Chat-Antwortformats sprengen würde.
+    
+    Dieses Beispiel soll als Ausgangspunkt dienen, der viele Grundkonzepte demonstriert.
+  -->
 </body>
 </html>
