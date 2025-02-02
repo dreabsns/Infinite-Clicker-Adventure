@@ -2,732 +2,161 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Infinite Clicker Extreme: Ultimate Edition</title>
-  <!-- Prevent Zooming on Mobile Devices -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <!-- Google Fonts for modern typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Minimaler Doom‑ähnlicher Raycaster</title>
   <style>
-    /* Global Reset und Nicht-Auswählbarer Text */
-    * {
-      box-sizing: border-box;
+    /* Grundlegendes Styling */
+    body, html {
       margin: 0;
       padding: 0;
-      user-select: none;
-    }
-    html, body {
-      height: 100%;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(-45deg, #1e3c72, #2a5298, #1e3c72, #2a5298);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #f8f9fa;
-      overflow-x: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    /* Container: Zentral ausgerichtet */
-    .container {
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      text-align: center;
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    /* Header – Bestandteil des Containers */
-    header {
-      width: 100%;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    header h1 {
-      font-size: 2.5em;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 1em;
-    }
-    nav button.active,
-    nav button:hover {
-      background: linear-gradient(45deg, #ff6f61, #ff8a65);
-    }
-    /* Decorative Tagline */
-    .tagline {
-      font-size: 1.1em;
-      margin-top: 20px;
-      opacity: 0.8;
-    }
-    /* Global Addictive Button Style */
-    button {
-      background: linear-gradient(45deg, #ff6f61, #ff8a65);
-      border: none;
-      color: #fff;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      position: relative;
       overflow: hidden;
-      text-align: center;
+      background: black;
     }
-    button:focus { outline: none; }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-    }
-    /* Pulse Animation */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    .pulse {
-      animation: pulse 0.3s ease;
-    }
-    /* Ripple Effekt */
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      transform: scale(0);
-      pointer-events: none;
-      background-color: rgba(255,255,255,0.7);
-    }
-    .ripple.primary {
-      animation: ripplePrimary 0.6s linear;
-    }
-    .ripple.secondary {
-      animation: rippleSecondary 0.8s linear;
-    }
-    @keyframes ripplePrimary {
-      to { transform: scale(4); opacity: 0; }
-    }
-    @keyframes rippleSecondary {
-      0% { transform: scale(0); opacity: 0.9; }
-      100% { transform: scale(5); opacity: 0; }
-    }
-    /* Reward Burst Animation */
-    @keyframes rewardBurst {
-      0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(-60px) scale(1.5) rotate(360deg); opacity: 0; }
-    }
-    /* Bonus Burst Animation */
-    @keyframes bonusBurst {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.8) rotate(10deg); opacity: 1; text-shadow: 0 0 10px #fffd82; }
-      100% { transform: scale(2.5) rotate(20deg); opacity: 0; }
-    }
-    /* Stats Panel – nicht klickbar */
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px 0;
-      font-size: 1.2em;
-      flex-wrap: wrap;
-      pointer-events: none;
-    }
-    .stats div { margin: 10px; }
-    /* Game Screen: Klickbereich direkt unter der Navigation */
-    #gameScreen {
-      margin-top: 0;
-    }
-    /* Upgrades Screen: Punkteanzeige */
-    #upgradesScreen h2 {
-      margin-bottom: 10px;
-    }
-    #upgradesScreen .points-display {
-      font-size: 1em;
-      margin-bottom: 15px;
-      opacity: 0.9;
-    }
-    /* Upgrades Styling */
-    .upgrades { margin-top: 30px; }
-    .upgrade-item {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      margin: 10px;
-      border-radius: 8px;
-      display: inline-block;
-      width: 260px;
-      vertical-align: top;
-      transition: transform 0.3s;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-      text-align: left;
-    }
-    .upgrade-item:hover { transform: translateY(-5px); }
-    .upgrade-item h3 { margin-bottom: 5px; font-size: 1.3em; }
-    .upgrade-item p { margin-bottom: 5px; font-size: 0.95em; }
-    .upgrade-item button {
-      padding: 10px 20px;
-      font-size: 1em;
-      margin-top: 5px;
-    }
-    .progress {
-      width: 100%;
-      background: #34495e;
-      border-radius: 5px;
-      overflow: hidden;
-      margin-top: 10px;
-      height: 20px;
-    }
-    .progress-inner {
-      height: 100%;
-      width: 0;
-      background: #27ae60;
-      transition: width 0.5s;
-    }
-    /* Achievements Styling */
-    .achievement {
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      margin: 10px;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: opacity 0.3s;
-    }
-    .achievement.locked { opacity: 0.5; }
-    .achievement.unlocked { border: 2px solid #f1c40f; opacity: 1; }
-    /* Fixed Buttons für Daily Bonus und Reset */
-    #resetButton, #dailyBonusButton {
-      position: fixed;
-      bottom: 20px;
-      z-index: 1000;
-    }
-    #resetButton { right: 20px; }
-    #dailyBonusButton { left: 20px; }
-    /* Screen Transitions */
-    .screen { display: none; animation: fadeIn 0.5s ease forwards; }
-    .screen.active { display: block; }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    /* Popup Notification Styles */
-    #popup-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 2000;
-    }
-    .popup {
-      background: rgba(0,0,0,0.8);
-      padding: 15px 20px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      color: #fff;
-      animation: popupFade 3s forwards;
-      font-size: 1em;
-    }
-    @keyframes popupFade {
-      0% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-20px); }
-    }
-    /* Modal Confirmation Styles */
-    #modal-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 3000;
-      background: rgba(0, 0, 0, 0.5);
-    }
-    #modal {
-      background: #222;
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-    }
-    #modal p {
-      margin-bottom: 20px;
-      font-size: 1.1em;
-    }
-    #modal button {
-      margin: 0 10px;
-    }
-    /* Responsive Optimierung */
-    @media (max-width: 600px) {
-      header {
-        position: relative;
-        transform: none;
-      }
-      .container {
-        margin-top: 20px;
-      }
-      header h1 {
-        font-size: 2em;
-      }
-      nav button {
-        padding: 8px 16px;
-        font-size: 0.9em;
-      }
-      button {
-        padding: 12px 24px;
-        font-size: 1em;
-      }
-      .upgrade-item {
-        width: 90%;
-        margin: 10px auto;
-      }
-      .stats {
-        font-size: 1em;
-      }
-      .tagline {
-        font-size: 0.9em;
-      }
-    }
-    @media (min-width: 601px) {
-      /* Auf Laptops: Container zentriert, Header im Container */
-      body {
-        justify-content: center;
-      }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      image-rendering: pixelated;
     }
   </style>
 </head>
 <body>
-  <!-- Popup und Modal Container -->
-  <div id="popup-container"></div>
-  <div id="modal-container">
-    <div id="modal">
-      <p id="modal-message"></p>
-      <button id="modal-yes">Ja</button>
-      <button id="modal-no">Nein</button>
-    </div>
-  </div>
-  
-  <header>
-    <h1>Infinite Clicker Extreme: Ultimate Edition</h1>
-    <nav>
-      <button data-screen="gameScreen" class="active">Game</button>
-      <button data-screen="upgradesScreen">Upgrades</button>
-      <button data-screen="achievementsScreen">Achievements</button>
-      <button data-screen="prestigeScreen">Prestige</button>
-    </nav>
-  </header>
-  <div class="container">
-    <!-- Game Screen -->
-    <div id="gameScreen" class="screen active">
-      <div class="stats">
-        <div>Points: <span id="points">0</span></div>
-        <div>Points per Click: <span id="ppc">1</span></div>
-        <div>Auto Clickers: <span id="auto">0</span></div>
-        <div>Prestige Multiplier: x<span id="prestigeMultiplier">1</span></div>
-      </div>
-      <button id="clickButton">Click Me!</button>
-    </div>
-    
-    <!-- Upgrades Screen -->
-    <div id="upgradesScreen" class="screen">
-      <h2>Upgrades</h2>
-      <div class="points-display">Your Points: <span id="points-upgrade">0</span></div>
-      <div id="upgradesContainer"></div>
-    </div>
-    
-    <!-- Achievements Screen -->
-    <div id="achievementsScreen" class="screen">
-      <h2>Achievements</h2>
-      <div id="achievementsContainer"></div>
-    </div>
-    
-    <!-- Prestige Screen -->
-    <div id="prestigeScreen" class="screen">
-      <h2>Prestige</h2>
-      <div class="prestige-info">
-        Current Prestige Points: <span id="prestigePoints">0</span>
-      </div>
-      <div class="prestige-info">
-        Prestige Bonus: x<span id="prestigeBonus">1</span>
-      </div>
-      <button id="prestigeButton">Prestige (Reset for bonus)</button>
-      <p style="margin-top:15px; font-size:0.9em;">(You need at least 1000 points to prestige)</p>
-    </div>
-    <!-- Decorative Tagline -->
-    <div class="tagline">Keep clicking for endless fun!</div>
-  </div>
-  
-  <!-- Fixed Buttons -->
-  <button id="dailyBonusButton">Daily Bonus</button>
-  <button id="resetButton">Reset Game</button>
-  
+  <canvas id="gameCanvas"></canvas>
   <script>
-    (function(){
-      /*** GAME VARIABLES ***/
-      let points = 0;
-      let pointsPerClick = 1;
-      let autoClickers = 0;
-      let prestigePoints = 0;
-      let bonusChance = 0.1;
-      const upgrades = [
-        { id: 'clickUpgrade', name: 'Better Clicks', description: 'Increase points per click by +1.', cost: 10, effect: 1, count: 0, type: 'click' },
-        { id: 'autoUpgrade', name: 'Auto Clicker', description: 'Adds 1 auto clicker (points every second).', cost: 50, effect: 1, count: 0, type: 'auto' },
-        { id: 'multiUpgrade', name: 'Multiplier Boost', description: 'Increase overall point multiplier by 5%.', cost: 100, effect: 0.05, count: 0, type: 'multiplier' },
-        { id: 'luckyUpgrade', name: 'Lucky Charm', description: 'Increase bonus event chance by 2%.', cost: 200, effect: 0.02, count: 0, type: 'lucky' }
-      ];
-      const achievements = [
-        { id: 'achv1', name: 'Getting Started', description: 'Earn 100 points.', achieved: false, condition: () => points >= 100 },
-        { id: 'achv2', name: 'Click Master', description: 'Perform 100 clicks.', achieved: false, condition: () => totalClicks >= 100 },
-        { id: 'achv3', name: 'Auto Pilot', description: 'Have 10 auto clickers.', achieved: false, condition: () => autoClickers >= 10 },
-        { id: 'achv4', name: 'Prestigious', description: 'Earn your first prestige point.', achieved: false, condition: () => prestigePoints >= 1 },
-        { id: 'achv5', name: 'Upgrade Addict', description: 'Purchase 20 upgrades.', achieved: false, condition: () => totalUpgradesPurchased >= 20 }
-      ];
-      
-      let totalClicks = 0;
-      let totalUpgradesPurchased = 0;
-      
-      /*** DOM ELEMENTS ***/
-      const pointsEl = document.getElementById('points');
-      const ppcEl = document.getElementById('ppc');
-      const autoEl = document.getElementById('auto');
-      const prestigeMultiplierEl = document.getElementById('prestigeMultiplier');
-      const prestigePointsEl = document.getElementById('prestigePoints');
-      const prestigeBonusEl = document.getElementById('prestigeBonus');
-      const pointsUpgradeEl = document.getElementById('points-upgrade');
-      const clickButton = document.getElementById('clickButton');
-      const upgradesContainer = document.getElementById('upgradesContainer');
-      const achievementsContainer = document.getElementById('achievementsContainer');
-      const prestigeButton = document.getElementById('prestigeButton');
-      const resetButton = document.getElementById('resetButton');
-      const dailyBonusButton = document.getElementById('dailyBonusButton');
-      const navButtons = document.querySelectorAll('nav button');
-      const screens = document.querySelectorAll('.screen');
-      
-      /*** Popup Notification System ***/
-      const popupContainer = document.getElementById('popup-container');
-      function showPopup(message) {
-        const popup = document.createElement('div');
-        popup.className = 'popup';
-        popup.textContent = message;
-        popupContainer.appendChild(popup);
-        setTimeout(() => { popup.remove(); }, 3000);
-      }
-      
-      /*** Modal Confirmation System ***/
-      const modalContainer = document.getElementById('modal-container');
-      const modalMessage = document.getElementById('modal-message');
-      const modalYes = document.getElementById('modal-yes');
-      const modalNo = document.getElementById('modal-no');
-      function showConfirm(message, callback) {
-        modalMessage.textContent = message;
-        modalContainer.style.display = 'flex';
-        function cleanUp() {
-          modalYes.removeEventListener('click', yesHandler);
-          modalNo.removeEventListener('click', noHandler);
-          modalContainer.style.display = 'none';
-        }
-        function yesHandler() {
-          cleanUp();
-          callback(true);
-        }
-        function noHandler() {
-          cleanUp();
-          callback(false);
-        }
-        modalYes.addEventListener('click', yesHandler);
-        modalNo.addEventListener('click', noHandler);
-      }
-      
-      /*** Utility Functions ***/
-      function updateUI() {
-        pointsEl.textContent = Math.floor(points);
-        ppcEl.textContent = pointsPerClick.toFixed(2);
-        autoEl.textContent = autoClickers;
-        prestigeMultiplierEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
-        prestigePointsEl.textContent = prestigePoints;
-        prestigeBonusEl.textContent = (1 + prestigePoints * 0.1).toFixed(2);
-        // Update points display in Upgrade-Bereich:
-        pointsUpgradeEl.textContent = Math.floor(points);
-        updateUpgradesUI();
-        updateAchievementsUI();
-      }
-      
-      // Reward animation using rewardBurst keyframes.
-      function showReward(x, y, text) {
-        const reward = document.createElement('div');
-        reward.style.position = 'absolute';
-        reward.style.left = x + 'px';
-        reward.style.top = (y - 60) + 'px';
-        reward.style.fontSize = '1.5em';
-        reward.style.color = '#fffd82';
-        reward.style.opacity = 1;
-        reward.style.animation = 'rewardBurst 1s ease-out forwards';
-        reward.textContent = text;
-        document.body.appendChild(reward);
-        setTimeout(() => reward.remove(), 1000);
-      }
-      
-      // Bonus event animation using bonusBurst keyframes.
-      function showBonusEvent(bonus) {
-        const bonusElem = document.createElement('div');
-        bonusElem.style.position = 'fixed';
-        bonusElem.style.left = '50%';
-        bonusElem.style.top = '50%';
-        bonusElem.style.transform = 'translate(-50%, -50%)';
-        bonusElem.style.fontSize = '3em';
-        bonusElem.style.color = '#fffd82';
-        bonusElem.style.textShadow = '0 0 10px #fffd82';
-        bonusElem.style.opacity = 0;
-        bonusElem.style.animation = 'bonusBurst 1.2s ease-out forwards';
-        bonusElem.textContent = 'BONUS! +' + bonus;
-        document.body.appendChild(bonusElem);
-        setTimeout(() => bonusElem.remove(), 1200);
-      }
-      
-      /*** Navigation Tabs ***/
-      navButtons.forEach(btn => {
-        btn.addEventListener('click', function(){
-          navButtons.forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          screens.forEach(screen => screen.classList.remove('active'));
-          document.getElementById(this.getAttribute('data-screen')).classList.add('active');
-        });
-      });
-      
-      /*** Game Click Handler with Enhanced Animation ***/
-      clickButton.addEventListener('click', function(e){
-        totalClicks++;
-        clickButton.classList.add('pulse');
-        setTimeout(() => clickButton.classList.remove('pulse'), 300);
-        
-        let upgradeMultiplier = 1 + upgrades.filter(u => u.type === 'multi').reduce((acc, u) => acc + u.count * u.effect, 0);
-        let currentMultiplier = (1 + prestigePoints * 0.1) * upgradeMultiplier;
-        let added = pointsPerClick * currentMultiplier;
-        points += added;
-        updateUI();
-        showReward(e.clientX, e.clientY, '+' + added.toFixed(0));
-        
-        // Create double ripple effect.
-        const rect = clickButton.getBoundingClientRect();
-        for (let i = 0; i < 2; i++) {
-          const ripple = document.createElement('span');
-          ripple.className = 'ripple ' + (i === 0 ? 'primary' : 'secondary');
-          ripple.style.left = (e.clientX - rect.left) + 'px';
-          ripple.style.top = (e.clientY - rect.top) + 'px';
-          clickButton.appendChild(ripple);
-          setTimeout(() => ripple.remove(), i === 0 ? 600 : 800);
-        }
-      });
-      
-      /*** Auto Clickers ***/
-      setInterval(() => {
-        if(autoClickers > 0) {
-          let upgradeMultiplier = 1 + upgrades.filter(u => u.type === 'multi').reduce((acc, u) => acc + u.count * u.effect, 0);
-          let currentMultiplier = (1 + prestigePoints * 0.1) * upgradeMultiplier;
-          let autoPoints = autoClickers * currentMultiplier;
-          points += autoPoints;
-          updateUI();
-        }
-      }, 1000);
-      
-      /*** Bonus Events ***/
-      function bonusEvent() {
-        let extraChance = upgrades.filter(u => u.type === 'lucky').reduce((acc, u) => acc + u.count * u.effect, 0);
-        if(Math.random() < bonusChance + extraChance) {
-          let bonus = Math.floor(Math.random()*50) + 20;
-          points += bonus;
-          updateUI();
-          showBonusEvent(bonus);
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Ein einfacher 2D-Map (0 = leerer Raum, 1 = Wand)
+    const map = [
+      [1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,0,0,0,1],
+      [1,0,1,0,1,0,1,0,0,1],
+      [1,0,1,0,0,0,1,0,0,1],
+      [1,0,1,1,1,0,1,0,0,1],
+      [1,0,0,0,0,0,1,0,0,1],
+      [1,1,1,1,1,1,1,1,1,1]
+    ];
+    const mapWidth = map[0].length;
+    const mapHeight = map.length;
+    const tileSize = 64; // fiktive Größe – dient nur zur Berechnung
+
+    // Spielerposition und Blickrichtung (in Map‑Einheiten)
+    let posX = 3.5, posY = 3.5;  // Startposition
+    let dir = 0;               // Blickrichtung in Radiant (0 = nach rechts)
+    const fov = Math.PI / 3;   // Sichtfeld (60°)
+
+    // Tastaturzustand
+    const keys = {};
+    window.addEventListener("keydown", e => keys[e.code] = true);
+    window.addEventListener("keyup", e => keys[e.code] = false);
+
+    function update() {
+      const moveSpeed = 0.05;
+      const rotSpeed = 0.03;
+      // Vorwärts bewegen
+      if (keys["ArrowUp"]) {
+        posX += Math.cos(dir) * moveSpeed;
+        posY += Math.sin(dir) * moveSpeed;
+        if (map[Math.floor(posY)][Math.floor(posX)] !== 0) {
+          posX -= Math.cos(dir) * moveSpeed;
+          posY -= Math.sin(dir) * moveSpeed;
         }
       }
-      setInterval(bonusEvent, 7000);
-      
-      /*** Daily Bonus ***/
-      dailyBonusButton.addEventListener('click', function(){
-        const lastClaim = localStorage.getItem('dailyBonusTime');
-        const now = Date.now();
-        if(lastClaim && now - lastClaim < 24 * 60 * 60 * 1000) {
-          showPopup("Daily bonus already claimed. Come back later!");
-          return;
+      // Rückwärts bewegen
+      if (keys["ArrowDown"]) {
+        posX -= Math.cos(dir) * moveSpeed;
+        posY -= Math.sin(dir) * moveSpeed;
+        if (map[Math.floor(posY)][Math.floor(posX)] !== 0) {
+          posX += Math.cos(dir) * moveSpeed;
+          posY += Math.sin(dir) * moveSpeed;
         }
-        const bonus = Math.floor(Math.random()*200) + 100;
-        points += bonus;
-        updateUI();
-        localStorage.setItem('dailyBonusTime', now);
-        showBonusEvent(bonus);
-      });
-      
-      /*** Upgrades ***/
-      function updateUpgradesUI() {
-        upgradesContainer.innerHTML = '';
-        upgrades.forEach(upg => {
-          const div = document.createElement('div');
-          div.className = 'upgrade-item';
-          div.innerHTML = `
-            <h3>${upg.name}</h3>
-            <p>${upg.description}</p>
-            <p>Cost: <span id="cost-${upg.id}">${upg.cost}</span> | Owned: ${upg.count}</p>
-            <button data-upgrade="${upg.id}">Buy Upgrade</button>
-            <div class="progress" id="progress-${upg.id}">
-              <div class="progress-inner"></div>
-            </div>
-          `;
-          upgradesContainer.appendChild(div);
-        });
-        document.querySelectorAll('[data-upgrade]').forEach(btn => {
-          btn.addEventListener('click', function(){
-            const upgId = this.getAttribute('data-upgrade');
-            purchaseUpgrade(upgId);
-          });
-        });
       }
-      
-      function purchaseUpgrade(id) {
-        const upg = upgrades.find(u => u.id === id);
-        if(points >= upg.cost) {
-          points -= upg.cost;
-          upg.count++;
-          totalUpgradesPurchased++;
-          upg.cost = Math.floor(upg.cost * 1.5);
-          if(upg.type === 'click') {
-            pointsPerClick += upg.effect;
-          } else if(upg.type === 'auto') {
-            autoClickers += upg.effect;
-          }
-          updateUI();
-          animateProgress('progress-' + upg.id);
+      // Rotieren
+      if (keys["ArrowLeft"]) {
+        dir -= rotSpeed;
+      }
+      if (keys["ArrowRight"]) {
+        dir += rotSpeed;
+      }
+    }
+
+    function render() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Für jeden vertikalen Streifen (Pixel-Spalte) am Bildschirm:
+      for (let x = 0; x < canvas.width; x++) {
+        // Berechne den Kamerakoeffizienten von -1 bis 1
+        const cameraX = 2 * x / canvas.width - 1;
+        // Berechne die Richtung des Strahls
+        const rayDir = dir + cameraX * (fov / 2);
+
+        // Startposition in der Map (Integer-Koordinaten)
+        let mapX = Math.floor(posX);
+        let mapY = Math.floor(posY);
+
+        // Länge des Strahls bis zur nächsten x‑ oder y‑Seiten
+        const deltaDistX = Math.abs(1 / Math.cos(rayDir));
+        const deltaDistY = Math.abs(1 / Math.sin(rayDir));
+
+        let stepX, stepY;
+        let sideDistX, sideDistY;
+
+        if (Math.cos(rayDir) < 0) {
+          stepX = -1;
+          sideDistX = (posX - mapX) * deltaDistX;
         } else {
-          showPopup("Not enough points for this upgrade!");
+          stepX = 1;
+          sideDistX = (mapX + 1.0 - posX) * deltaDistX;
         }
-      }
-      
-      function animateProgress(id) {
-        const progress = document.getElementById(id).querySelector('.progress-inner');
-        progress.style.width = '100%';
-        setTimeout(() => { progress.style.width = '0'; }, 500);
-      }
-      
-      /*** Achievements ***/
-      function updateAchievementsUI() {
-        achievementsContainer.innerHTML = '';
-        achievements.forEach(achv => {
-          if(!achv.achieved && achv.condition()) {
-            achv.achieved = true;
-            showPopup("Achievement Unlocked: " + achv.name);
-          }
-          const div = document.createElement('div');
-          div.className = 'achievement ' + (achv.achieved ? 'unlocked' : 'locked');
-          div.innerHTML = `<span>${achv.name}</span><span>${achv.achieved ? 'Unlocked' : 'Locked'}</span>`;
-          achievementsContainer.appendChild(div);
-        });
-      }
-      
-      /*** Prestige System ***/
-      prestigeButton.addEventListener('click', function(){
-        if(points < 1000) {
-          showPopup("You need at least 1000 points to prestige!");
-          return;
+        if (Math.sin(rayDir) < 0) {
+          stepY = -1;
+          sideDistY = (posY - mapY) * deltaDistY;
+        } else {
+          stepY = 1;
+          sideDistY = (mapY + 1.0 - posY) * deltaDistY;
         }
-        showConfirm("Prestiging will reset your game but grant you a bonus multiplier. Continue?", function(confirmed){
-          if(confirmed) {
-            const gained = Math.floor(points / 1000);
-            prestigePoints += gained;
-            points = 0;
-            pointsPerClick = 1;
-            autoClickers = 0;
-            upgrades.forEach(upg => {
-              upg.count = 0;
-              if(upg.id === 'clickUpgrade') upg.cost = 10;
-              if(upg.id === 'autoUpgrade') upg.cost = 50;
-              if(upg.id === 'multiUpgrade') upg.cost = 100;
-              if(upg.id === 'luckyUpgrade') upg.cost = 200;
-            });
-            totalClicks = 0;
-            totalUpgradesPurchased = 0;
-            updateUI();
-            showPopup("Prestige successful! You gained " + gained + " prestige points.");
+
+        // DDA-Schleife (Digital Differential Analyzer) zur Wandkollision
+        let hit = 0;
+        let side;
+        while (hit === 0) {
+          if (sideDistX < sideDistY) {
+            sideDistX += deltaDistX;
+            mapX += stepX;
+            side = 0;
+          } else {
+            sideDistY += deltaDistY;
+            mapY += stepY;
+            side = 1;
           }
-        });
-      });
-      
-      /*** Reset Game ***/
-      resetButton.addEventListener('click', function(){
-        showConfirm("Are you sure you want to reset your game? This cannot be undone.", function(confirmed){
-          if(confirmed) {
-            points = 0;
-            pointsPerClick = 1;
-            autoClickers = 0;
-            prestigePoints = 0;
-            upgrades.forEach(upg => {
-              upg.count = 0;
-              if(upg.id === 'clickUpgrade') upg.cost = 10;
-              if(upg.id === 'autoUpgrade') upg.cost = 50;
-              if(upg.id === 'multiUpgrade') upg.cost = 100;
-              if(upg.id === 'luckyUpgrade') upg.cost = 200;
-            });
-            totalClicks = 0;
-            totalUpgradesPurchased = 0;
-            localStorage.removeItem('infiniteClickerUltimate');
-            updateUI();
-          }
-        });
-      });
-      
-      /*** Save & Load Game ***/
-      function saveGame() {
-        const state = {
-          points, pointsPerClick, autoClickers, prestigePoints,
-          upgrades: upgrades.map(u => ({ id: u.id, cost: u.cost, count: u.count })),
-          totalClicks, totalUpgradesPurchased
-        };
-        localStorage.setItem('infiniteClickerUltimate', JSON.stringify(state));
-      }
-      
-      function loadGame() {
-        const saved = localStorage.getItem('infiniteClickerUltimate');
-        if(saved) {
-          const state = JSON.parse(saved);
-          points = state.points;
-          pointsPerClick = state.pointsPerClick;
-          autoClickers = state.autoClickers;
-          prestigePoints = state.prestigePoints;
-          totalClicks = state.totalClicks;
-          totalUpgradesPurchased = state.totalUpgradesPurchased;
-          state.upgrades.forEach(savedUpg => {
-            const upg = upgrades.find(u => u.id === savedUpg.id);
-            if(upg) {
-              upg.cost = savedUpg.cost;
-              upg.count = savedUpg.count;
-            }
-          });
-          updateUI();
+          if (map[mapY] && map[mapY][mapX] > 0) hit = 1;
         }
+
+        // Berechne die Entfernung zur Wand
+        let perpWallDist;
+        if (side === 0)
+          perpWallDist = (mapX - posX + (1 - stepX) / 2) / Math.cos(rayDir);
+        else
+          perpWallDist = (mapY - posY + (1 - stepY) / 2) / Math.sin(rayDir);
+
+        // Höhe der Wand-Säule
+        const lineHeight = Math.floor(canvas.height / perpWallDist);
+        const drawStart = -lineHeight / 2 + canvas.height / 2;
+        // Einfache Farbauswahl: unterschiedliche Farbtöne je nach Seitenlage
+        ctx.fillStyle = side === 0 ? "#FF5555" : "#AA0000";
+        ctx.fillRect(x, drawStart, 1, lineHeight);
       }
-      
-      setInterval(saveGame, 5000);
-      loadGame();
-      updateUI();
-    })();
+    }
+
+    function gameLoop() {
+      update();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
   </script>
 </body>
 </html>
