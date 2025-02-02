@@ -2,14 +2,14 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Minimaler Doom‑ähnlicher Raycaster</title>
+  <title>Doom-Klon Framework</title>
   <style>
-    /* Grundlegendes Styling */
-    body, html {
+    /* Basis-Styles */
+    html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       background: black;
+      overflow: hidden;
     }
     canvas {
       display: block;
@@ -22,106 +22,121 @@
 <body>
   <canvas id="gameCanvas"></canvas>
   <script>
+    // Setup Canvas
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Ein einfacher 2D-Map (0 = leerer Raum, 1 = Wand)
-    const map = [
-      [1,1,1,1,1,1,1,1,1,1],
-      [1,0,0,0,0,0,0,0,0,1],
-      [1,0,1,0,1,0,1,0,0,1],
-      [1,0,1,0,0,0,1,0,0,1],
-      [1,0,1,1,1,0,1,0,0,1],
-      [1,0,0,0,0,0,1,0,0,1],
-      [1,1,1,1,1,1,1,1,1,1]
-    ];
-    const mapWidth = map[0].length;
-    const mapHeight = map.length;
-    const tileSize = 64; // fiktive Größe – dient nur zur Berechnung
+    // Spieler-Daten (als Beispiel)
+    const player = {
+      x: 3.5,
+      y: 3.5,
+      angle: 0,         // Blickrichtung in Radiant
+      health: 100,
+      speed: 0.05
+    };
 
-    // Spielerposition und Blickrichtung (in Map‑Einheiten)
-    let posX = 3.5, posY = 3.5;  // Startposition
-    let dir = 0;               // Blickrichtung in Radiant (0 = nach rechts)
-    const fov = Math.PI / 3;   // Sichtfeld (60°)
+    // Beispielhafte Level-Daten (sehr einfach gehalten)
+    // 0 = leerer Raum, 1 = Wand
+    const level = {
+      map: [
+        [1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,1],
+        [1,0,1,0,1,0,1,0,0,1],
+        [1,0,1,0,0,0,1,0,0,1],
+        [1,0,1,1,1,0,1,0,0,1],
+        [1,0,0,0,0,0,1,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1]
+      ],
+      tileSize: 64
+    };
 
-    // Tastaturzustand
+    // Tastatureingaben verwalten
     const keys = {};
     window.addEventListener("keydown", e => keys[e.code] = true);
     window.addEventListener("keyup", e => keys[e.code] = false);
 
-    function update() {
-      const moveSpeed = 0.05;
-      const rotSpeed = 0.03;
-      // Vorwärts bewegen
-      if (keys["ArrowUp"]) {
-        posX += Math.cos(dir) * moveSpeed;
-        posY += Math.sin(dir) * moveSpeed;
-        if (map[Math.floor(posY)][Math.floor(posX)] !== 0) {
-          posX -= Math.cos(dir) * moveSpeed;
-          posY -= Math.sin(dir) * moveSpeed;
-        }
-      }
-      // Rückwärts bewegen
-      if (keys["ArrowDown"]) {
-        posX -= Math.cos(dir) * moveSpeed;
-        posY -= Math.sin(dir) * moveSpeed;
-        if (map[Math.floor(posY)][Math.floor(posX)] !== 0) {
-          posX += Math.cos(dir) * moveSpeed;
-          posY += Math.sin(dir) * moveSpeed;
-        }
-      }
-      // Rotieren
-      if (keys["ArrowLeft"]) {
-        dir -= rotSpeed;
-      }
-      if (keys["ArrowRight"]) {
-        dir += rotSpeed;
-      }
+    // Haupt-Spielschleife
+    function gameLoop() {
+      update();
+      render();
+      requestAnimationFrame(gameLoop);
     }
 
+    // Update-Funktion: Steuereingaben, Spielphysik, Gegner‑KI etc.
+    function update() {
+      // Beispiel: Vorwärtsbewegung
+      if (keys["ArrowUp"]) {
+        const nextX = player.x + Math.cos(player.angle) * player.speed;
+        const nextY = player.y + Math.sin(player.angle) * player.speed;
+        if (level.map[Math.floor(nextY)][Math.floor(nextX)] === 0) {
+          player.x = nextX;
+          player.y = nextY;
+        }
+      }
+      // Beispiel: Rückwärtsbewegung
+      if (keys["ArrowDown"]) {
+        const nextX = player.x - Math.cos(player.angle) * player.speed;
+        const nextY = player.y - Math.sin(player.angle) * player.speed;
+        if (level.map[Math.floor(nextY)][Math.floor(nextX)] === 0) {
+          player.x = nextX;
+          player.y = nextY;
+        }
+      }
+      // Beispiel: Rotation
+      if (keys["ArrowLeft"]) {
+        player.angle -= 0.03;
+      }
+      if (keys["ArrowRight"]) {
+        player.angle += 0.03;
+      }
+
+      // Hier würden auch Gegner‑Logik, Kollisionen, Waffensysteme etc. aktualisiert
+    }
+
+    // Render-Funktion: Zeichnet die Szene (Raycasting‑Engine)
     function render() {
+      // Bildschirm löschen
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Für jeden vertikalen Streifen (Pixel-Spalte) am Bildschirm:
+      // Beispiel: Minimaler Raycasting-Ansatz für Wand-Rendering
+      const fov = Math.PI / 3; // 60° Sichtfeld
       for (let x = 0; x < canvas.width; x++) {
-        // Berechne den Kamerakoeffizienten von -1 bis 1
         const cameraX = 2 * x / canvas.width - 1;
-        // Berechne die Richtung des Strahls
-        const rayDir = dir + cameraX * (fov / 2);
+        const rayAngle = player.angle + cameraX * (fov / 2);
 
-        // Startposition in der Map (Integer-Koordinaten)
-        let mapX = Math.floor(posX);
-        let mapY = Math.floor(posY);
+        // Startposition des Strahls
+        let mapX = Math.floor(player.x);
+        let mapY = Math.floor(player.y);
 
-        // Länge des Strahls bis zur nächsten x‑ oder y‑Seiten
-        const deltaDistX = Math.abs(1 / Math.cos(rayDir));
-        const deltaDistY = Math.abs(1 / Math.sin(rayDir));
+        // Berechnung der Distanz-Schritte
+        const deltaDistX = Math.abs(1 / Math.cos(rayAngle));
+        const deltaDistY = Math.abs(1 / Math.sin(rayAngle));
 
         let stepX, stepY;
         let sideDistX, sideDistY;
 
-        if (Math.cos(rayDir) < 0) {
+        if (Math.cos(rayAngle) < 0) {
           stepX = -1;
-          sideDistX = (posX - mapX) * deltaDistX;
+          sideDistX = (player.x - mapX) * deltaDistX;
         } else {
           stepX = 1;
-          sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+          sideDistX = (mapX + 1.0 - player.x) * deltaDistX;
         }
-        if (Math.sin(rayDir) < 0) {
+        if (Math.sin(rayAngle) < 0) {
           stepY = -1;
-          sideDistY = (posY - mapY) * deltaDistY;
+          sideDistY = (player.y - mapY) * deltaDistY;
         } else {
           stepY = 1;
-          sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+          sideDistY = (mapY + 1.0 - player.y) * deltaDistY;
         }
 
-        // DDA-Schleife (Digital Differential Analyzer) zur Wandkollision
-        let hit = 0;
+        // DDA-Schleife zur Wandfindung
+        let hit = false;
         let side;
-        while (hit === 0) {
+        while (!hit) {
           if (sideDistX < sideDistY) {
             sideDistX += deltaDistX;
             mapX += stepX;
@@ -131,32 +146,30 @@
             mapY += stepY;
             side = 1;
           }
-          if (map[mapY] && map[mapY][mapX] > 0) hit = 1;
+          if (level.map[mapY] && level.map[mapY][mapX] > 0) hit = true;
         }
 
         // Berechne die Entfernung zur Wand
         let perpWallDist;
         if (side === 0)
-          perpWallDist = (mapX - posX + (1 - stepX) / 2) / Math.cos(rayDir);
+          perpWallDist = (mapX - player.x + (1 - stepX) / 2) / Math.cos(rayAngle);
         else
-          perpWallDist = (mapY - posY + (1 - stepY) / 2) / Math.sin(rayDir);
+          perpWallDist = (mapY - player.y + (1 - stepY) / 2) / Math.sin(rayAngle);
 
-        // Höhe der Wand-Säule
+        // Wandhöhe basierend auf Distanz
         const lineHeight = Math.floor(canvas.height / perpWallDist);
         const drawStart = -lineHeight / 2 + canvas.height / 2;
-        // Einfache Farbauswahl: unterschiedliche Farbtöne je nach Seitenlage
         ctx.fillStyle = side === 0 ? "#FF5555" : "#AA0000";
         ctx.fillRect(x, drawStart, 1, lineHeight);
       }
+
+      // Hier würden auch Sprites, Gegner, HUD (z.B. Leben, Waffen) etc. gerendert
     }
 
-    function gameLoop() {
-      update();
-      render();
-      requestAnimationFrame(gameLoop);
-    }
-
+    // Starte die Spielschleife
     gameLoop();
+
+    // Zusätzliche Module (z.B. Sound-Management, Level-Parser, Gegner‑Klassen) müssten hier hinzugefügt werden.
   </script>
 </body>
 </html>
